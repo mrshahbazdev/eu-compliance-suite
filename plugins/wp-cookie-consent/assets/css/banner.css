@@ -1,0 +1,23 @@
+.eurocomply-cc-root[hidden]{display:none}
+.eurocomply-cc-root{position:fixed;z-index:2147483000;left:0;right:0;padding:16px;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:1.5}
+.eurocomply-cc-root[data-position="bottom"]{bottom:0}
+.eurocomply-cc-root[data-position="top"]{top:0}
+.eurocomply-cc-root[data-position="modal"]{top:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45)}
+.eurocomply-cc-banner{background:var(--eurocomply-cc-bg,#111827);color:var(--eurocomply-cc-text,#f9fafb);border-radius:12px;padding:20px 24px;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:640px;margin:0 auto}
+.eurocomply-cc-root[data-layout="bar"] .eurocomply-cc-banner{max-width:100%;border-radius:0;padding:16px 20px;display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eurocomply-cc-title{font-size:16px;font-weight:600;margin:0 0 8px;color:inherit}
+.eurocomply-cc-message{margin:0 0 12px;color:inherit;opacity:.92}
+.eurocomply-cc-policy{margin:0 0 12px;font-size:13px}
+.eurocomply-cc-policy a{color:var(--eurocomply-cc-accent,#60a5fa)}
+.eurocomply-cc-prefs{margin:12px 0 4px;display:grid;gap:10px}
+.eurocomply-cc-category{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:start;padding:10px;background:rgba(255,255,255,.05);border-radius:8px}
+.eurocomply-cc-category input{margin-top:4px}
+.eurocomply-cc-category-label{font-weight:600;grid-column:2}
+.eurocomply-cc-category-desc{grid-column:2;font-size:12px;opacity:.8}
+.eurocomply-cc-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.eurocomply-cc-btn{font:inherit;padding:10px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:transparent;color:inherit;cursor:pointer}
+.eurocomply-cc-btn:hover{border-color:rgba(255,255,255,.35)}
+.eurocomply-cc-accept{background:var(--eurocomply-cc-accent,#2563eb);color:#fff;border-color:transparent}
+.eurocomply-cc-accept:hover{filter:brightness(1.08)}
+.eurocomply-cc-settings-link{position:fixed;left:12px;bottom:12px;z-index:2147482999;background:var(--eurocomply-cc-bg,#111827);color:var(--eurocomply-cc-text,#f9fafb);border-radius:999px;padding:8px 14px;font-size:12px;cursor:pointer;border:1px solid rgba(0,0,0,.1);box-shadow:0 4px 12px rgba(0,0,0,.15);opacity:.88}
+.eurocomply-cc-settings-link:hover{opacity:1}

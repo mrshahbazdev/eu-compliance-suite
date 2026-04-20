@@ -270,6 +270,12 @@ class Settings {
 					$clean[ $key ] = sanitize_text_field( $value );
 			}
 		}
+
+		// Preserve site-integration flags that are not part of the field schema.
+		if ( ! empty( $raw['footer_links_enabled'] ) ) {
+			$clean['footer_links_enabled'] = '1';
+		}
+
 		update_option( self::OPTION_KEY, $clean, false );
 		return $clean;
 	}

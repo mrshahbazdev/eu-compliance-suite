@@ -134,11 +134,20 @@ final class Vies {
 
 		$url = sprintf( self::ENDPOINT, rawurlencode( $prefix ), rawurlencode( $number ) );
 
+		// Force identity encoding: ec.europa.eu's VIES edge has been
+		// observed to close TLS without a close_notify when the default
+		// `Accept-Encoding: gzip, deflate` is present on some OpenSSL 3
+		// builds, producing cURL error 56 mid-response. Requesting an
+		// uncompressed body avoids the path that triggers the bug.
 		$response = wp_remote_get(
 			$url,
 			array(
-				'timeout' => $timeout,
-				'headers' => array( 'Accept' => 'application/json' ),
+				'timeout'    => $timeout,
+				'user-agent' => 'EuroComplyVAT/' . EUROCOMPLY_VAT_VERSION . '; WordPress',
+				'headers'    => array(
+					'Accept'          => 'application/json',
+					'Accept-Encoding' => 'identity',
+				),
 			)
 		);
 

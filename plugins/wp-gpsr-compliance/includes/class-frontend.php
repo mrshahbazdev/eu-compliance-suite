@@ -29,7 +29,11 @@ final class Frontend {
 	}
 
 	private function boot() : void {
+		// Classic themes: hook into the WooCommerce product summary action.
 		add_action( 'woocommerce_single_product_summary', array( $this, 'render_block' ), 45 );
+		// Block themes (WP 6.0+) do not fire the classic action on single product templates.
+		// Append the GPSR section to the_content as a fallback so the block always renders.
+		add_filter( 'the_content', array( $this, 'append_to_content' ), 20 );
 		add_shortcode( 'eurocomply_gpsr', array( $this, 'shortcode' ) );
 	}
 
@@ -45,6 +49,41 @@ final class Frontend {
 		}
 
 		echo $this->render_html( (int) $product->get_id(), $settings ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_html escapes its own output.
+	}
+
+	/**
+	 * Append the GPSR section to single-product content. Primary path for block themes
+	 * (Twenty Twenty-Four+, any FSE theme) where the classic
+	 * `woocommerce_single_product_summary` action does not fire.
+	 */
+	public function append_to_content( string $content ) : string {
+		if ( ! is_singular( 'product' ) || ! in_the_loop() || ! is_main_query() ) {
+			return $content;
+		}
+		// Block themes auto-generate a post excerpt from the_content when
+		// post_excerpt is empty (wp_trim_excerpt → apply_filters('the_content')).
+		// Skip in that context so the GPSR HTML does not leak into the
+		// wp-block-post-excerpt block as a plaintext duplicate.
+		if ( doing_filter( 'get_the_excerpt' ) ) {
+			return $content;
+		}
+		$settings = Settings::get();
+		if ( empty( $settings['render_frontend'] ) ) {
+			return $content;
+		}
+		$product_id = (int) get_the_ID();
+		if ( ! $product_id ) {
+			return $content;
+		}
+		// Avoid double-render in classic themes that already ran the action.
+		if ( false !== strpos( $content, 'class="eurocomply-gpsr"' ) ) {
+			return $content;
+		}
+		$html = $this->render_html( $product_id, $settings );
+		if ( '' === $html ) {
+			return $content;
+		}
+		return $content . $html;
 	}
 
 	public function shortcode( $atts ) : string {

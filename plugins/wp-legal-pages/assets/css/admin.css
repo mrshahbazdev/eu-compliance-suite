@@ -1,0 +1,96 @@
+/* EuroComply admin styles — scoped to admin pages via hook check */
+
+.eurocomply-wrap h1 .eurocomply-brand {
+	color: #1F4E78;
+	font-weight: 800;
+	letter-spacing: -0.01em;
+}
+.eurocomply-wrap h1 .eurocomply-subtitle {
+	color: #5a6675;
+	font-weight: 500;
+	font-size: 0.7em;
+	margin-left: 0.5em;
+}
+
+.eurocomply-tab-content {
+	background: #fff;
+	padding: 1.25rem 1.5rem;
+	border: 1px solid #dcdcde;
+	border-top: 0;
+}
+
+.eurocomply-group {
+	margin: 1.5rem 0 2rem;
+	padding: 0;
+	border: 0;
+}
+.eurocomply-group legend {
+	font-weight: 700;
+	font-size: 1.05rem;
+	color: #1F4E78;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	padding: 0;
+	margin-bottom: 0.5rem;
+}
+
+.eurocomply-form .required {
+	color: #b42318;
+}
+
+.eurocomply-publish-table th,
+.eurocomply-publish-table td {
+	vertical-align: middle;
+}
+.eurocomply-publish-table code {
+	font-size: 0.8em;
+	color: #5a6675;
+}
+
+.eurocomply-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	line-height: 1.6;
+}
+.eurocomply-badge-free   { background: #E8F1FA; color: #1F4E78; }
+.eurocomply-badge-pro    { background: #E8F5E9; color: #1B5E20; }
+.eurocomply-badge-locked { background: #FDECEA; color: #B42318; }
+
+.eurocomply-upsell {
+	margin-top: 2rem;
+	padding: 1.25rem 1.5rem;
+	background: linear-gradient(135deg, #1F4E78 0%, #2E72B0 100%);
+	color: #fff;
+	border-radius: 6px;
+}
+.eurocomply-upsell h3 { color: #fff; margin-top: 0; }
+.eurocomply-upsell ul { margin: 0.5rem 0 1rem 1.25rem; }
+.eurocomply-upsell li { margin: 0.15rem 0; }
+.eurocomply-upsell .button-hero {
+	background: #FFD966;
+	color: #1F4E78;
+	border-color: #FFD966;
+	text-shadow: none;
+	box-shadow: none;
+	font-weight: 700;
+}
+.eurocomply-upsell .button-hero:hover {
+	background: #FFCD38;
+	border-color: #FFCD38;
+	color: #1F4E78;
+}
+
+/* Footer widget rendered on frontend */
+.eurocomply-legal-footer {
+	text-align: center;
+	padding: 1rem 0;
+	font-size: 0.9rem;
+}
+.eurocomply-legal-footer a + a::before {
+	content: " · ";
+	opacity: 0.5;
+}

@@ -406,7 +406,7 @@ final class Admin {
 			}
 		}
 		set_transient( 'settings_errors', get_settings_errors(), 30 );
-		wp_safe_redirect( add_query_arg( array( 'page' => self::MENU_SLUG, 'tab' => 'license' ), admin_url( 'admin.php' ) ) );
+		wp_safe_redirect( add_query_arg( array( 'page' => self::MENU_SLUG, 'tab' => 'license', 'settings-updated' => 'true' ), admin_url( 'admin.php' ) ) );
 		exit;
 	}
 
@@ -451,7 +451,7 @@ final class Admin {
 			'updated'
 		);
 		set_transient( 'settings_errors', get_settings_errors(), 30 );
-		wp_safe_redirect( add_query_arg( array( 'page' => self::MENU_SLUG, 'tab' => 'scanner' ), admin_url( 'admin.php' ) ) );
+		wp_safe_redirect( add_query_arg( array( 'page' => self::MENU_SLUG, 'tab' => 'scanner', 'settings-updated' => 'true' ), admin_url( 'admin.php' ) ) );
 		exit;
 	}
 
@@ -463,7 +463,7 @@ final class Admin {
 		IssueStore::clear_all();
 		add_settings_error( 'eurocomply_eaa', 'cleared', __( 'All recorded issues cleared.', 'eurocomply-eaa' ), 'updated' );
 		set_transient( 'settings_errors', get_settings_errors(), 30 );
-		wp_safe_redirect( add_query_arg( array( 'page' => self::MENU_SLUG, 'tab' => 'scanner' ), admin_url( 'admin.php' ) ) );
+		wp_safe_redirect( add_query_arg( array( 'page' => self::MENU_SLUG, 'tab' => 'scanner', 'settings-updated' => 'true' ), admin_url( 'admin.php' ) ) );
 		exit;
 	}
 

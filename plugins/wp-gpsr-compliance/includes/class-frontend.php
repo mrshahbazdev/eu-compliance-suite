@@ -60,6 +60,13 @@ final class Frontend {
 		if ( ! is_singular( 'product' ) || ! in_the_loop() || ! is_main_query() ) {
 			return $content;
 		}
+		// Block themes auto-generate a post excerpt from the_content when
+		// post_excerpt is empty (wp_trim_excerpt → apply_filters('the_content')).
+		// Skip in that context so the GPSR HTML does not leak into the
+		// wp-block-post-excerpt block as a plaintext duplicate.
+		if ( doing_filter( 'get_the_excerpt' ) ) {
+			return $content;
+		}
 		$settings = Settings::get();
 		if ( empty( $settings['render_frontend'] ) ) {
 			return $content;

@@ -1,0 +1,52 @@
+.eurocomply-av-admin .eurocomply-av-version {
+	font-size: 12px;
+	color: #646970;
+	font-weight: 400;
+	margin-left: 6px;
+}
+.eurocomply-av-admin .eurocomply-av-tabs {
+	margin-bottom: 1em;
+}
+.eurocomply-av-cards {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin: 16px 0;
+}
+.eurocomply-av-card {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	padding: 12px 16px;
+	min-width: 160px;
+}
+.eurocomply-av-card-value {
+	font-size: 22px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+.eurocomply-av-card-label {
+	color: #646970;
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+}
+.eurocomply-av-pro-list {
+	list-style: disc;
+	margin-left: 1.2em;
+}
+.eurocomply-av-country-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+	gap: 8px 16px;
+	max-width: 720px;
+}
+.eurocomply-av-country-grid label {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+.eurocomply-av-country-grid input {
+	width: 60px;
+}

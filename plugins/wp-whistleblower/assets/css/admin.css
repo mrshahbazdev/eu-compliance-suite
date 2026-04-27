@@ -1,0 +1,36 @@
+.eurocomply-wb-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: 12px;
+	margin: 16px 0 24px;
+}
+
+.eurocomply-wb-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-left: 4px solid #50575e;
+	border-radius: 4px;
+	padding: 14px 16px;
+}
+
+.eurocomply-wb-card--ok   { border-left-color: #00a651; }
+.eurocomply-wb-card--warn { border-left-color: #f7b500; }
+.eurocomply-wb-card--crit { border-left-color: #e30613; background: #fff5f5; }
+
+.eurocomply-wb-card__value {
+	font-size: 28px;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.eurocomply-wb-card__label {
+	margin-top: 6px;
+	color: #50575e;
+	font-size: 12px;
+}
+
+.eurocomply-wb-row-active { background: #f0f6fc !important; }
+.eurocomply-wb-body { white-space: pre-wrap; max-width: 760px; }
+.eurocomply-wb-pro-list { list-style: disc; padding-left: 22px; max-width: 760px; }
+.eurocomply-wb-pro-list li { margin-bottom: 6px; }
+.eurocomply-wb-preview { border: 1px solid #c3c4c7; padding: 16px; background: #fff; max-width: 860px; }

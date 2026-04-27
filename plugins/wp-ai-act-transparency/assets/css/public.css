@@ -1,0 +1,71 @@
+.eurocomply-aiact-label {
+	display: block;
+	margin: 12px 0;
+	padding: 12px 14px;
+	background: #fff8e1;
+	border: 1px solid #f0c36d;
+	border-left: 4px solid #d97706;
+	border-radius: 4px;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.eurocomply-aiact-label--deepfake {
+	background: #fde9e9;
+	border-color: #c0392b;
+	border-left-color: #b91c1c;
+}
+
+.eurocomply-aiact-label__icon {
+	margin-right: 6px;
+	font-weight: 700;
+}
+
+.eurocomply-aiact-label__details {
+	display: block;
+	margin-top: 4px;
+	color: #555;
+	font-size: 12px;
+}
+
+.eurocomply-aiact-disclosure {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 12px 0;
+	padding: 10px 14px;
+	background: #eef2ff;
+	border: 1px solid #c7d2fe;
+	border-radius: 4px;
+	color: #312e81;
+	font-size: 14px;
+}
+
+.eurocomply-aiact-disclosure--inline {
+	display: inline-flex;
+	margin: 0;
+}
+
+.eurocomply-aiact-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 14px 0;
+}
+
+.eurocomply-aiact-table th,
+.eurocomply-aiact-table td {
+	padding: 8px 12px;
+	border-bottom: 1px solid #e5e5e5;
+	text-align: left;
+	vertical-align: top;
+}
+
+.eurocomply-aiact-table th {
+	background: #f6f7f7;
+	font-weight: 600;
+}
+
+.eurocomply-aiact-policy h2,
+.eurocomply-aiact-policy h3 {
+	margin-top: 1.2em;
+}

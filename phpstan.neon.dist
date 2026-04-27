@@ -1,0 +1,12 @@
+parameters:
+  level: 5
+  paths:
+    - plugins
+  excludePaths:
+    - plugins/*/vendor/*
+    - plugins/*/node_modules/*
+    - plugins/*/languages/*
+  treatPhpDocTypesAsCertain: false
+  reportUnmatchedIgnoredErrors: false
+includes:
+  - vendor/szepeviktor/phpstan-wordpress/extension.neon

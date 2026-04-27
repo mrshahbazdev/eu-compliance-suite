@@ -1,0 +1,132 @@
+.eurocomply-dash-wrap .eurocomply-dash-hero {
+	display: flex;
+	align-items: center;
+	gap: 32px;
+	margin: 18px 0 22px;
+	padding: 22px 28px;
+	background: linear-gradient(135deg, #f6f7f7 0%, #fff 100%);
+	border: 1px solid #c3c4c7;
+	border-radius: 8px;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-hero--green { border-left: 6px solid #00a651; }
+.eurocomply-dash-wrap .eurocomply-dash-hero--amber { border-left: 6px solid #f7b500; }
+.eurocomply-dash-wrap .eurocomply-dash-hero--red   { border-left: 6px solid #e30613; }
+
+.eurocomply-dash-wrap .eurocomply-dash-hero__score {
+	font-size: 72px;
+	font-weight: 700;
+	line-height: 1;
+	color: #1d2327;
+	min-width: 100px;
+	text-align: center;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-hero__caption h2 { margin: 0 0 6px; }
+.eurocomply-dash-wrap .eurocomply-dash-hero__caption p  { margin: 0; color: #50575e; }
+
+.eurocomply-dash-wrap .eurocomply-dash-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 16px;
+	margin-top: 18px;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-left: 4px solid #50575e;
+	border-radius: 6px;
+	padding: 14px 16px;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-card--green { border-left-color: #00a651; }
+.eurocomply-dash-wrap .eurocomply-dash-card--amber { border-left-color: #f7b500; }
+.eurocomply-dash-wrap .eurocomply-dash-card--red   { border-left-color: #e30613; }
+.eurocomply-dash-wrap .eurocomply-dash-card--inactive { opacity: 0.55; }
+
+.eurocomply-dash-wrap .eurocomply-dash-card__head {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 8px;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-card__title {
+	font-weight: 600;
+	font-size: 15px;
+	text-decoration: none;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-card__score {
+	font-size: 22px;
+	font-weight: 700;
+	color: #1d2327;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-card__ref {
+	margin: 4px 0 10px;
+	color: #646970;
+	font-size: 12px;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-card__metrics {
+	margin: 8px 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	gap: 14px;
+	flex-wrap: wrap;
+	font-size: 13px;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-card__metrics li {
+	background: #f6f7f7;
+	padding: 6px 10px;
+	border-radius: 3px;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-card__metrics strong {
+	display: block;
+	font-size: 16px;
+	line-height: 1;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-card__metrics span {
+	color: #50575e;
+	font-size: 11px;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-card__alerts {
+	margin: 8px 0 0;
+	padding: 0;
+	list-style: none;
+	font-size: 13px;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-alert {
+	display: inline-block;
+	padding: 3px 8px;
+	border-radius: 3px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-alert--info { background: #eef2ff; color: #312e81; }
+.eurocomply-dash-wrap .eurocomply-dash-alert--warn { background: #fff8e1; color: #92400e; }
+.eurocomply-dash-wrap .eurocomply-dash-alert--crit { background: #fde9e9; color: #7f1d1d; }
+
+.eurocomply-dash-wrap .eurocomply-dash-card__inactive {
+	margin: 6px 0 0;
+	color: #646970;
+	font-size: 12px;
+	font-style: italic;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-pro-list {
+	list-style: disc;
+	padding-left: 22px;
+	max-width: 760px;
+}
+
+.eurocomply-dash-wrap .eurocomply-dash-pro-list li { margin-bottom: 6px; }

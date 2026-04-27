@@ -1,0 +1,39 @@
+.eurocomply-epr-admin .eurocomply-epr-version {
+	font-size: 12px;
+	color: #6c757d;
+	background: #f1f3f5;
+	padding: 2px 8px;
+	border-radius: 10px;
+	margin-left: 4px;
+	vertical-align: middle;
+}
+
+.eurocomply-epr-admin .eurocomply-epr-summary {
+	font-size: 14px;
+	margin: 12px 0;
+}
+
+.eurocomply-epr-admin .eurocomply-epr-features {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 16px;
+	margin-top: 16px;
+}
+
+.eurocomply-epr-admin .eurocomply-epr-feature-card {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 12px 16px;
+}
+
+.eurocomply-epr-admin .eurocomply-epr-feature-card h3 {
+	margin-top: 0;
+	font-size: 14px;
+}
+
+.eurocomply-epr-admin .eurocomply-epr-feature-card p {
+	font-size: 13px;
+	color: #50575e;
+	margin-bottom: 0;
+}

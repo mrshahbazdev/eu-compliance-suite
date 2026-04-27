@@ -1,0 +1,34 @@
+.eurocomply-eaa-admin .eurocomply-eaa-version {
+	font-size: 0.6em;
+	color: #555;
+	vertical-align: middle;
+}
+
+.eurocomply-eaa-admin .eurocomply-eaa-summary {
+	font-size: 1.05em;
+	margin: 1em 0 0.5em;
+}
+
+.eurocomply-eaa-admin .eurocomply-eaa-features {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+	gap: 12px;
+	margin-top: 12px;
+}
+
+.eurocomply-eaa-admin .eurocomply-eaa-feature-card {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: 12px 14px;
+}
+
+.eurocomply-eaa-admin .eurocomply-eaa-feature-card h3 {
+	margin-top: 0;
+	font-size: 1.05em;
+}
+
+.eurocomply-eaa-admin code {
+	font-size: 0.85em;
+	word-break: break-all;
+}

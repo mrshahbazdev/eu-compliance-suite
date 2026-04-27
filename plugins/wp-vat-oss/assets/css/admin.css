@@ -1,0 +1,18 @@
+.eurocomply-vat-admin h1 { margin-bottom: 8px; }
+.eurocomply-vat-admin .eurocomply-vat-version {
+	font-size: 12px;
+	color: #6b7280;
+	font-weight: normal;
+	margin-left: 6px;
+}
+.eurocomply-vat-admin .nav-tab-wrapper { margin-bottom: 20px; }
+.eurocomply-vat-admin table.eurocomply-vat-rates td,
+.eurocomply-vat-admin table.eurocomply-vat-rates th {
+	vertical-align: middle;
+}
+.eurocomply-vat-pro-hint {
+	background: #f1f5f9;
+	border-left: 4px solid #6366f1;
+	padding: 10px 14px;
+	margin-top: 20px;
+}

@@ -1,0 +1,10 @@
+.eurocomply-vat-feedback {
+	display: block;
+	margin-top: 4px;
+	font-size: 13px;
+	min-height: 18px;
+}
+.eurocomply-vat-feedback.is-valid { color: #14532d; }
+.eurocomply-vat-feedback.is-invalid { color: #991b1b; }
+.eurocomply-vat-feedback.is-checking { color: #6b7280; }
+.eurocomply-vat-feedback.is-error { color: #92400e; }

@@ -1,0 +1,72 @@
+.eurocomply-gpsr-admin .eurocomply-gpsr-version {
+	background: #eef;
+	color: #224;
+	font-size: 12px;
+	padding: 2px 8px;
+	border-radius: 10px;
+	vertical-align: middle;
+	margin-left: 8px;
+}
+
+.eurocomply-gpsr-summary {
+	background: #f6f7f7;
+	padding: 12px 16px;
+	border-left: 4px solid #2271b1;
+	margin: 12px 0;
+}
+
+.eurocomply-gpsr-status {
+	display: inline-block;
+	padding: 2px 10px;
+	border-radius: 10px;
+	font-size: 12px;
+	font-weight: 600;
+}
+.eurocomply-gpsr-status--ok {
+	background: #d4ecd4;
+	color: #1b5e20;
+}
+.eurocomply-gpsr-status--warning {
+	background: #fff3c4;
+	color: #855b00;
+}
+.eurocomply-gpsr-status--error {
+	background: #fddede;
+	color: #8b0000;
+}
+
+.eurocomply-gpsr-pro__list {
+	list-style: none;
+	padding: 0;
+	margin: 12px 0 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+	gap: 12px;
+}
+.eurocomply-gpsr-pro__list li {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 14px 16px;
+	margin: 0;
+}
+
+.eurocomply-gpsr {
+	margin: 20px 0;
+	padding: 16px 20px;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	background: #fafafa;
+}
+.eurocomply-gpsr__heading {
+	font-size: 16px;
+	margin: 0 0 10px;
+}
+.eurocomply-gpsr__list dt {
+	font-weight: 600;
+	margin-top: 8px;
+}
+.eurocomply-gpsr__list dd {
+	margin: 2px 0 0;
+	color: #333;
+}

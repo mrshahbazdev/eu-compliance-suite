@@ -1,0 +1,59 @@
+.eurocomply-nis2-vuln-form-wrap {
+	max-width: 720px;
+	margin: 0 auto;
+}
+
+.eurocomply-nis2-vuln-form p {
+	margin-bottom: 14px;
+}
+
+.eurocomply-nis2-vuln-form label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.eurocomply-nis2-vuln-form input[type="text"],
+.eurocomply-nis2-vuln-form input[type="email"],
+.eurocomply-nis2-vuln-form select,
+.eurocomply-nis2-vuln-form textarea {
+	display: block;
+	width: 100%;
+	padding: 8px 10px;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	font-size: 15px;
+}
+
+.eurocomply-nis2-vuln-form button.eurocomply-nis2-submit {
+	display: inline-block;
+	padding: 10px 20px;
+	background: #2271b1;
+	color: #fff;
+	border: 0;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 15px;
+}
+
+.eurocomply-nis2-vuln-form button.eurocomply-nis2-submit:hover {
+	background: #135e96;
+}
+
+.eurocomply-nis2-notice {
+	padding: 12px 16px;
+	border-left: 4px solid #72aee6;
+	background: #f6f7f7;
+	margin-bottom: 14px;
+	border-radius: 2px;
+}
+
+.eurocomply-nis2-notice.eurocomply-nis2-notice--success {
+	border-left-color: #00a32a;
+	background: #edfaef;
+}
+
+.eurocomply-nis2-notice.eurocomply-nis2-notice--error {
+	border-left-color: #d63638;
+	background: #fcf0f1;
+}

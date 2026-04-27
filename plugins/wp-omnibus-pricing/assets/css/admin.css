@@ -1,0 +1,20 @@
+.eurocomply-omnibus-admin .eurocomply-omnibus-version {
+	font-size: 13px;
+	color: #6b6b6b;
+	font-weight: 400;
+}
+.eurocomply-omnibus-admin table.widefat {
+	margin-top: 1em;
+}
+.eurocomply-omnibus-admin .ul-disc {
+	list-style: disc;
+	padding-left: 1.4em;
+}
+.eurocomply-omnibus-reference {
+	display: inline-block;
+	color: #5d5d5d;
+	font-size: 0.9em;
+}
+.eurocomply-omnibus-reference--empty {
+	color: #a5a5a5;
+}

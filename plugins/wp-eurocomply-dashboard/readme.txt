@@ -15,8 +15,8 @@ Site-wide aggregator for the EuroComply EU compliance suite. Unified score, plug
 A meta-plugin that surfaces a single pane of glass over the EuroComply compliance suite:
 
 * Unified compliance score (0–100) across all active EuroComply plugins
-* Plugin status grid (13 cards: Legal Pages, Cookie Consent, VAT OSS, GPSR, EPR, EAA, Omnibus, DSA, Age Verification, GDPR DSAR, NIS2 & CRA, Right-to-Repair, AI Act)
-* Alerts feed — overdue NIS2 24h / 72h windows, overdue DSAR 30-day windows, missing legal pages, etc.
+* Plugin status grid (20 cards: Legal Pages, Cookie Consent, VAT OSS, GPSR, EPR, EAA, Omnibus, DSA, Age Verification, GDPR DSAR, NIS2 & CRA, Right-to-Repair, AI Act, Whistleblower, ePrivacy & Tracker Registry, Pay Transparency, CBAM, CSRD/ESRS, PSD2/SCA, EUDR)
+* Alerts feed — overdue NIS2 24h / 72h, DSAR 30-day, Whistleblower 7-day acknowledgement / 3-month feedback, Pay Transparency 2-month info-request, EUDR high-risk shipment, CBAM default-emission rows, missing legal pages, etc.
 * Statutory deadline calendar (NIS2 Art. 23, GDPR Art. 12(3), GPSR Art. 20, EPR quarterly, EAA bi-annual, DSA annual, AI Act review)
 * Snapshot history with manual capture button and CSV export
 * CSV export — plugins / alerts / snapshots (500 free, 5,000 Pro)

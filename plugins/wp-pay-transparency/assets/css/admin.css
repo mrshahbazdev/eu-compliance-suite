@@ -1,0 +1,13 @@
+/* EuroComply Pay Transparency admin */
+.eurocomply-pt-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0 22px}
+.eurocomply-pt-card{background:#fff;border:1px solid #dcdcde;border-left-width:4px;border-radius:4px;padding:14px 16px}
+.eurocomply-pt-card-value{font-size:32px;font-weight:600;line-height:1.1}
+.eurocomply-pt-card-label{font-size:12px;text-transform:uppercase;color:#646970;margin-top:4px}
+.eurocomply-pt-card-ok{border-left-color:#00a32a}
+.eurocomply-pt-card-warn{border-left-color:#dba617}
+.eurocomply-pt-card-crit{border-left-color:#d63638}
+.eurocomply-pt-pill{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;line-height:18px;font-weight:600}
+.eurocomply-pt-pill.ok{background:#edfaef;color:#00641d}
+.eurocomply-pt-pill.warn{background:#fcf3cd;color:#5a3a00}
+.eurocomply-pt-pill.crit{background:#fde8e9;color:#a50d11}
+.eurocomply-pt-info{background:#fff;border:1px solid #dcdcde;padding:10px 14px;border-radius:4px;margin:10px 0 18px}

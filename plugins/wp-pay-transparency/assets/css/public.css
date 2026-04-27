@@ -1,0 +1,11 @@
+/* EuroComply Pay Transparency frontend */
+.eurocomply-pt-pay-badge{background:#edfaef;border:1px solid #00a32a;border-radius:4px;padding:6px 10px;margin:0 0 1em;font-size:0.95em}
+.eurocomply-pt-pay-inline{background:#edfaef;border:1px solid #00a32a;border-radius:3px;padding:1px 6px;font-size:0.9em}
+.eurocomply-pt-warning{background:#fcf3cd;border:1px solid #dba617;border-radius:4px;padding:6px 10px;margin:0 0 1em;font-size:0.95em}
+.eurocomply-pt-form{max-width:540px}
+.eurocomply-pt-form input[type=email],.eurocomply-pt-form input[type=text],.eurocomply-pt-form select,.eurocomply-pt-form textarea{width:100%}
+.eurocomply-pt-msg{padding:8px 12px;border-radius:4px;margin:0 0 1em}
+.eurocomply-pt-msg-ok{background:#edfaef;border:1px solid #00a32a;color:#00641d}
+.eurocomply-pt-msg-err{background:#fde8e9;border:1px solid #d63638;color:#a50d11}
+.eurocomply-pt-token-display{background:#fff;border:1px solid #c3c4c7;padding:8px 12px;border-radius:4px;font-size:0.9em}
+.eurocomply-pt-criteria,.eurocomply-pt-progression{background:#fff;border:1px solid #dcdcde;padding:10px 14px;border-radius:4px;margin:0 0 1em}

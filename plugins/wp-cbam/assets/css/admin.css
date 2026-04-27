@@ -1,0 +1,14 @@
+/* EuroComply CBAM admin */
+.eurocomply-cbam-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0 22px}
+.eurocomply-cbam-card-stat{background:#fff;border:1px solid #dcdcde;border-left-width:4px;border-radius:4px;padding:14px 16px}
+.eurocomply-cbam-card-stat .val{font-size:30px;font-weight:600;line-height:1.1}
+.eurocomply-cbam-card-stat .lbl{font-size:12px;text-transform:uppercase;color:#646970;margin-top:4px}
+.eurocomply-cbam-card-ok{border-left-color:#00a32a}
+.eurocomply-cbam-card-warn{border-left-color:#dba617}
+.eurocomply-cbam-card-crit{border-left-color:#d63638}
+.eurocomply-cbam-pill{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;line-height:18px;font-weight:600}
+.eurocomply-cbam-pill.ok{background:#edfaef;color:#00641d}
+.eurocomply-cbam-pill.warn{background:#fcf3cd;color:#5a3a00}
+.eurocomply-cbam-pill.crit{background:#fde8e9;color:#a50d11}
+.eurocomply-cbam-info{background:#fff;border:1px solid #dcdcde;padding:10px 14px;border-radius:4px;margin:10px 0 18px}
+.eurocomply-cbam-card{background:#edfaef;border:1px solid #00a32a;border-radius:4px;padding:8px 12px;margin:0 0 1em;font-size:0.95em}

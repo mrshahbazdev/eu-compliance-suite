@@ -1,0 +1,96 @@
+.eurocomply-av-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.7);
+	z-index: 99999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
+}
+.eurocomply-av-modal {
+	background: #fff;
+	color: #1d2327;
+	border-radius: 6px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+	padding: 28px 32px;
+	max-width: 440px;
+	width: 100%;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.eurocomply-av-modal h2 {
+	margin: 0 0 12px 0;
+	font-size: 20px;
+}
+.eurocomply-av-body {
+	color: #50575e;
+	margin: 0 0 16px 0;
+	line-height: 1.5;
+}
+.eurocomply-av-form label {
+	display: block;
+	margin: 0 0 16px 0;
+	font-weight: 500;
+}
+.eurocomply-av-form input[type="date"] {
+	display: block;
+	width: 100%;
+	padding: 8px 10px;
+	margin-top: 6px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	font-size: 15px;
+}
+.eurocomply-av-form input[type="checkbox"] {
+	margin-right: 8px;
+}
+.eurocomply-av-actions {
+	display: flex;
+	gap: 12px;
+	margin-top: 20px;
+}
+.eurocomply-av-submit,
+.eurocomply-av-leave {
+	flex: 1;
+	padding: 10px 16px;
+	border-radius: 4px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	border: 0;
+}
+.eurocomply-av-submit {
+	background: #2271b1;
+	color: #fff;
+}
+.eurocomply-av-submit:hover {
+	background: #135e96;
+}
+.eurocomply-av-leave {
+	background: transparent;
+	color: #50575e;
+	border: 1px solid #c3c4c7;
+}
+.eurocomply-av-status {
+	margin-top: 12px;
+	font-size: 13px;
+	min-height: 1.2em;
+}
+.eurocomply-av-status.is-error {
+	color: #d63638;
+}
+.eurocomply-av-status.is-success {
+	color: #008a20;
+}
+.eurocomply-av-checkout-required {
+	background: #fcf9e8;
+	border-left: 4px solid #dba617;
+	padding: 10px 14px;
+	margin: 12px 0;
+}
+.eurocomply-av-checkout-verified {
+	background: #edfaef;
+	border-left: 4px solid #00a32a;
+	padding: 10px 14px;
+	margin: 12px 0;
+}

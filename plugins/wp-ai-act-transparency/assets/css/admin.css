@@ -1,0 +1,60 @@
+.eurocomply-aiact-wrap .eurocomply-aiact-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 16px;
+	margin: 16px 0;
+}
+
+.eurocomply-aiact-wrap .eurocomply-aiact-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 6px;
+	padding: 18px;
+	text-align: center;
+}
+
+.eurocomply-aiact-wrap .eurocomply-aiact-card__value {
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1;
+}
+
+.eurocomply-aiact-wrap .eurocomply-aiact-card__label {
+	margin-top: 6px;
+	color: #50575e;
+	font-size: 13px;
+}
+
+.eurocomply-aiact-wrap .eurocomply-aiact-shortlist {
+	list-style: disc;
+	padding-left: 22px;
+}
+
+.eurocomply-aiact-wrap .eurocomply-aiact-shortlist code {
+	background: #f0f0f1;
+	padding: 2px 6px;
+	border-radius: 3px;
+}
+
+.eurocomply-aiact-wrap .eurocomply-aiact-pro-list {
+	list-style: disc;
+	padding-left: 22px;
+	max-width: 760px;
+}
+
+.eurocomply-aiact-wrap .eurocomply-aiact-pro-list li {
+	margin-bottom: 6px;
+}
+
+.eurocomply-aiact-wrap .eurocomply-aiact-preview {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 18px;
+	max-width: 900px;
+}
+
+.eurocomply-aiact-wrap .eurocomply-aiact-preview h2,
+.eurocomply-aiact-wrap .eurocomply-aiact-preview h3 {
+	margin-top: 0.6em;
+}

@@ -1,0 +1,79 @@
+.eurocomply-r2r-badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 8px 0;
+}
+
+.eurocomply-r2r-badges--loop {
+	margin: 4px 0;
+}
+
+.eurocomply-r2r-badge {
+	display: inline-block;
+	padding: 3px 10px;
+	border-radius: 3px;
+	font-weight: 700;
+	font-size: 13px;
+	line-height: 1.4;
+	letter-spacing: 0.3px;
+}
+
+.eurocomply-r2r-badge--parts {
+	background: #eef3f8;
+	color: #2271b1;
+	border: 1px solid #c5d4e3;
+}
+
+.eurocomply-r2r-kwh {
+	display: inline-block;
+	margin-left: 8px;
+	color: #50575e;
+	font-size: 13px;
+}
+
+.eurocomply-r2r-spec {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 10px 0 20px;
+}
+
+.eurocomply-r2r-spec th,
+.eurocomply-r2r-spec td {
+	text-align: left;
+	padding: 8px 12px;
+	border-bottom: 1px solid #e5e5e5;
+	vertical-align: top;
+}
+
+.eurocomply-r2r-spec th {
+	width: 40%;
+	font-weight: 600;
+	background: #f6f7f7;
+}
+
+.eurocomply-r2r-directory {
+	margin: 16px 0;
+}
+
+.eurocomply-r2r-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.eurocomply-r2r-table th,
+.eurocomply-r2r-table td {
+	padding: 8px 12px;
+	border-bottom: 1px solid #e5e5e5;
+	text-align: left;
+}
+
+.eurocomply-r2r-table th {
+	background: #f6f7f7;
+	font-weight: 600;
+}
+
+.eurocomply-r2r-policy {
+	margin-top: 14px;
+	font-size: 13px;
+}

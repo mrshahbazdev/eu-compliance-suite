@@ -1,0 +1,59 @@
+.eurocomply-r2r-wrap .eurocomply-r2r-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 16px;
+	margin: 16px 0;
+}
+
+.eurocomply-r2r-wrap .eurocomply-r2r-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 6px;
+	padding: 18px;
+	text-align: center;
+}
+
+.eurocomply-r2r-wrap .eurocomply-r2r-card__value {
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1;
+}
+
+.eurocomply-r2r-wrap .eurocomply-r2r-card__label {
+	margin-top: 6px;
+	color: #50575e;
+	font-size: 13px;
+}
+
+.eurocomply-r2r-wrap .eurocomply-r2r-shortlist {
+	list-style: disc;
+	padding-left: 22px;
+}
+
+.eurocomply-r2r-wrap .eurocomply-r2r-shortlist code {
+	background: #f0f0f1;
+	padding: 2px 6px;
+	border-radius: 3px;
+}
+
+.eurocomply-r2r-wrap .eurocomply-r2r-pro-list {
+	list-style: disc;
+	padding-left: 22px;
+	max-width: 760px;
+}
+
+.eurocomply-r2r-wrap .eurocomply-r2r-pro-list li {
+	margin-bottom: 6px;
+}
+
+.eurocomply-r2r-panel .form-field label {
+	font-weight: 600;
+}
+
+.eurocomply-r2r-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 3px;
+	font-weight: 600;
+	font-size: 12px;
+}

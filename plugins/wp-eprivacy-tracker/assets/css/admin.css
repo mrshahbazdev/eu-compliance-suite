@@ -1,0 +1,11 @@
+/* EuroComply ePrivacy admin */
+.eurocomply-eprivacy-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0 22px}
+.eurocomply-eprivacy-card{background:#fff;border:1px solid #dcdcde;border-left-width:4px;border-radius:4px;padding:14px 16px}
+.eurocomply-eprivacy-card-value{font-size:32px;font-weight:600;line-height:1.1}
+.eurocomply-eprivacy-card-label{font-size:12px;text-transform:uppercase;color:#646970;margin-top:4px}
+.eurocomply-eprivacy-card-ok{border-left-color:#00a32a}
+.eurocomply-eprivacy-card-warn{border-left-color:#dba617}
+.eurocomply-eprivacy-card-crit{border-left-color:#d63638}
+.eurocomply-eprivacy-pill{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;line-height:18px;font-weight:600}
+.eurocomply-eprivacy-pill.ok{background:#edfaef;color:#00641d}
+.eurocomply-eprivacy-pill.crit{background:#fde8e9;color:#a50d11}

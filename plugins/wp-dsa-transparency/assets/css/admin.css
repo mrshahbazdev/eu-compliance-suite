@@ -1,0 +1,58 @@
+.eurocomply-dsa-admin .eurocomply-dsa-version {
+	font-size: 12px;
+	color: #646970;
+	font-weight: 400;
+	margin-left: 6px;
+}
+.eurocomply-dsa-admin .eurocomply-dsa-tabs {
+	margin-bottom: 1em;
+}
+.eurocomply-dsa-cards {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin: 16px 0;
+}
+.eurocomply-dsa-card {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	padding: 12px 16px;
+	min-width: 160px;
+}
+.eurocomply-dsa-card-value {
+	font-size: 22px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+.eurocomply-dsa-card-label {
+	color: #646970;
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+}
+.eurocomply-dsa-pro-list {
+	list-style: disc;
+	margin-left: 1.2em;
+}
+.eurocomply-dsa-form input[type="text"],
+.eurocomply-dsa-form input[type="email"],
+.eurocomply-dsa-form input[type="url"],
+.eurocomply-dsa-form textarea,
+.eurocomply-dsa-form select {
+	width: 100%;
+	max-width: 520px;
+}
+.eurocomply-dsa-notice-success,
+.eurocomply-dsa-trader-success {
+	background: #edfaef;
+	border-left: 4px solid #00a32a;
+	padding: 8px 12px;
+	margin: 12px 0;
+}
+.eurocomply-dsa-notice-error {
+	background: #fcf0f1;
+	border-left: 4px solid #d63638;
+	padding: 8px 12px;
+	margin: 12px 0;
+}

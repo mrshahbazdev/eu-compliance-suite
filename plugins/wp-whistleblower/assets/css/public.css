@@ -1,0 +1,77 @@
+.eurocomply-wb-form-wrap {
+	max-width: 720px;
+	background: #fff;
+	border: 1px solid #d0d4d9;
+	border-radius: 6px;
+	padding: 22px 24px;
+	margin: 18px 0;
+	font-size: 15px;
+}
+
+.eurocomply-wb-form-wrap h3 {
+	margin-top: 0;
+	font-size: 20px;
+}
+
+.eurocomply-wb-form-intro {
+	color: #4a4f54;
+	margin-bottom: 14px;
+}
+
+.eurocomply-wb-input,
+.eurocomply-wb-textarea {
+	width: 100%;
+	padding: 8px 10px;
+	border: 1px solid #c0c4ca;
+	border-radius: 4px;
+	font: inherit;
+	box-sizing: border-box;
+}
+
+.eurocomply-wb-textarea { min-height: 140px; }
+
+.eurocomply-wb-btn {
+	background: #1d4ed8;
+	color: #fff;
+	border: none;
+	padding: 10px 18px;
+	border-radius: 4px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.eurocomply-wb-btn:hover { background: #1e40af; }
+
+.eurocomply-wb-msg {
+	padding: 10px 14px;
+	border-radius: 4px;
+	margin-bottom: 14px;
+}
+
+.eurocomply-wb-msg--ok  { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
+.eurocomply-wb-msg--err { background: #fef2f2; color: #7f1d1d; border: 1px solid #fca5a5; }
+
+.eurocomply-wb-token {
+	background: #fffbeb;
+	border: 1px dashed #f59e0b;
+	border-radius: 4px;
+	padding: 12px 14px;
+	margin-bottom: 14px;
+	font-family: monospace;
+	word-break: break-all;
+}
+
+.eurocomply-wb-contact {
+	border: 1px solid #e2e4e7;
+	padding: 10px 14px;
+	border-radius: 4px;
+	margin: 12px 0;
+}
+
+.eurocomply-wb-contact legend { padding: 0 6px; font-weight: 600; }
+.eurocomply-wb-status-card { background: #f6f7f7; padding: 12px 14px; border-radius: 4px; margin-bottom: 14px; }
+
+.eurocomply-wb-policy h2 { margin-top: 0; }
+.eurocomply-wb-policy h3 { margin-top: 18px; }
+
+.req { color: #b00; }

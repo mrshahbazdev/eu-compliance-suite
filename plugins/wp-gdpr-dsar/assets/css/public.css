@@ -1,0 +1,59 @@
+.eurocomply-dsar-form-wrap {
+	max-width: 640px;
+	margin: 0 auto;
+}
+
+.eurocomply-dsar-form p {
+	margin-bottom: 14px;
+}
+
+.eurocomply-dsar-form label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.eurocomply-dsar-form input[type="text"],
+.eurocomply-dsar-form input[type="email"],
+.eurocomply-dsar-form select,
+.eurocomply-dsar-form textarea {
+	display: block;
+	width: 100%;
+	padding: 8px 10px;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	font-size: 15px;
+}
+
+.eurocomply-dsar-form button.eurocomply-dsar-submit {
+	display: inline-block;
+	padding: 10px 20px;
+	background: #2271b1;
+	color: #fff;
+	border: 0;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 15px;
+}
+
+.eurocomply-dsar-form button.eurocomply-dsar-submit:hover {
+	background: #135e96;
+}
+
+.eurocomply-dsar-notice {
+	padding: 12px 16px;
+	border-left: 4px solid #72aee6;
+	background: #f6f7f7;
+	margin-bottom: 14px;
+	border-radius: 2px;
+}
+
+.eurocomply-dsar-notice.eurocomply-dsar-notice--success {
+	border-left-color: #00a32a;
+	background: #edfaef;
+}
+
+.eurocomply-dsar-notice.eurocomply-dsar-notice--error {
+	border-left-color: #d63638;
+	background: #fcf0f1;
+}

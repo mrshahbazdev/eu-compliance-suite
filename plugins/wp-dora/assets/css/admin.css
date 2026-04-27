@@ -1,0 +1,13 @@
+.eurocomply-dora-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0}
+.eurocomply-card{background:#fff;border:1px solid #c3c4c7;border-radius:6px;padding:14px}
+.eurocomply-card-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#646970}
+.eurocomply-card-value{font-size:30px;font-weight:600;line-height:1.1;margin:6px 0}
+.eurocomply-card-sub{font-size:12px;color:#646970}
+.eurocomply-tone-ok{border-left:4px solid #00a32a}
+.eurocomply-tone-warn{border-left:4px solid #dba617}
+.eurocomply-tone-crit{border-left:4px solid #d63638;background:#fcf0f1}
+.eurocomply-tone-plain{border-left:4px solid #2271b1}
+.eurocomply-pill{display:inline-block;padding:1px 8px;border-radius:9999px;font-size:11px;font-weight:600;background:#f0f0f1;color:#1d2327;margin-right:2px}
+.eurocomply-pill-ok{background:#d1fae5;color:#065f46}
+.eurocomply-pill-warn{background:#fef3c7;color:#92400e}
+.eurocomply-pill-crit{background:#fee2e2;color:#991b1b}

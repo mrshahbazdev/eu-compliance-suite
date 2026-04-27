@@ -4,7 +4,7 @@ Tags: compliance, dashboard, gdpr, dsa, nis2, ai-act, eu, woocommerce
 Requires at least: 6.2
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.1.0
+Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,16 +31,19 @@ Free:
 * Manual snapshot capture
 * 500-row CSV cap
 
-Pro stubs (not implemented):
+Pro (implemented in 0.2.0):
 
-* Daily WP-Cron compliance-score snapshot
+* Daily WP-Cron compliance-score snapshot with retention pruning (gated by `enable_daily_snapshot` setting + active license)
+* REST API: `GET /wp-json/eurocomply/v1/compliance`, `GET /compliance/summary`, `GET /snapshots`, `POST /snapshots` — capability `manage_options`, returns 402 when license inactive
+* 5,000-row CSV cap (vs 500 free) on plugins / alerts / snapshots datasets
+
+Pro stubs (still on the roadmap):
+
 * Email digest (weekly / monthly) to the compliance officer
 * Slack / Teams / PagerDuty webhook on alert
 * SIEM forwarding (Splunk / ELK / Datadog)
 * Multisite aggregator
 * Signed PDF compliance report
-* REST API endpoint `/wp-json/eurocomply/v1/compliance`
-* 5,000-row CSV cap
 * WPML / Polylang multi-language reports
 
 == Installation ==
@@ -50,6 +53,10 @@ Pro stubs (not implemented):
 3. Visit *EuroComply* in the WP admin sidebar.
 
 == Changelog ==
+
+= 0.2.0 =
+* Pro reference implementation: daily WP-Cron snapshot, REST API (`eurocomply/v1` namespace) and 5,000-row CSV cap.
+* Pro tab now reports per-feature status (Active / Inactive) plus next cron run.
 
 = 0.1.0 =
 * Initial MVP scaffold

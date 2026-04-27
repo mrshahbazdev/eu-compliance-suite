@@ -51,6 +51,31 @@ Site-wide aggregator for the EuroComply EU compliance suite. Surfaces a unified 
 - PSD2 — fraud rate exceeds RTS 2018/389 reference band
 - EUDR — high-risk shipments / DDS still in draft
 
+## Pro reference implementation (v0.2.0)
+
+Three of the Pro stubs are now wired up end-to-end as a reference for the rest of the suite:
+
+### Daily WP-Cron snapshot
+
+`Aggregator::cron_snapshot()` is registered to the `eurocomply_dashboard_daily_snapshot` action and short-circuits unless the license is active **and** the `enable_daily_snapshot` setting is on. The schedule is created on `License::activate()` and removed on `License::deactivate()` / plugin deactivation. Retention pruning runs immediately after each capture using `Settings::snapshot_retention_days`.
+
+### REST API
+
+Namespace `eurocomply/v1`, all routes require `manage_options`; non-Pro responses are HTTP 402.
+
+| Method | Route | Purpose |
+|--------|-------|---------|
+| GET | `/compliance` | Live snapshot — overall score, per-plugin connectors, merged alerts |
+| GET | `/compliance/summary` | Headline numbers + alert counts by severity |
+| GET | `/snapshots?per_page=N` | Paginated snapshot history (capped at 500) |
+| POST | `/snapshots` | Trigger an immediate snapshot capture |
+
+Each response carries an `X-EuroComply-Schema` header (`eurocomply-compliance-1`, `eurocomply-compliance-summary-1`, `eurocomply-snapshots-1`) so downstream tooling can pin a contract.
+
+### 5,000-row CSV cap
+
+`CsvExport::handle()` swaps in a 5,000-row limit for active Pro licenses across all three datasets (plugins / alerts / snapshots). Free tier stays at 500.
+
 ## Non-goals
 
 - Does not duplicate any sister plugin's storage

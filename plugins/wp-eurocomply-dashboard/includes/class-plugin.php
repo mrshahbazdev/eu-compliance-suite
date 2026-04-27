@@ -30,7 +30,8 @@ final class Plugin {
 		SnapshotStore::maybe_upgrade();
 		Admin::instance();
 		CsvExport::instance();
-		add_action( 'eurocomply_dashboard_daily_snapshot', array( '\\EuroComply\\Dashboard\\Aggregator', 'snapshot' ) );
+		Rest::instance();
+		add_action( 'eurocomply_dashboard_daily_snapshot', array( '\\EuroComply\\Dashboard\\Aggregator', 'cron_snapshot' ) );
 	}
 
 	public static function activate() : void {

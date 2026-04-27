@@ -60,6 +60,25 @@ final class Aggregator {
 		);
 	}
 
+	/**
+	 * WP-Cron callback.
+	 *
+	 * Pro-gated: skips silently if the license is not active or the user has
+	 * disabled `enable_daily_snapshot`. The hook stays registered so the
+	 * scheduled event still fires (cleanup happens on license deactivate /
+	 * plugin deactivate); this just no-ops the body.
+	 */
+	public static function cron_snapshot() : void {
+		if ( ! License::is_pro() ) {
+			return;
+		}
+		$s = Settings::get();
+		if ( empty( $s['enable_daily_snapshot'] ) ) {
+			return;
+		}
+		self::snapshot();
+	}
+
 	public static function snapshot() : void {
 		$payload = self::snapshot_payload();
 		SnapshotStore::record(

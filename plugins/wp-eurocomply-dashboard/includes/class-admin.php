@@ -318,25 +318,78 @@ final class Admin {
 	}
 
 	private function render_pro() : void {
-		echo '<p>' . esc_html__( 'Pro turns the dashboard into the source-of-truth for compliance reporting:', 'eurocomply-dashboard' ) . '</p>';
+		$is_pro    = License::is_pro();
+		$next_cron = wp_next_scheduled( 'eurocomply_dashboard_daily_snapshot' );
+		$rest_root = rest_url( Rest::NAMESPACE . '/' );
+
+		echo '<p>' . esc_html__( 'Pro turns the dashboard into the source-of-truth for compliance reporting.', 'eurocomply-dashboard' ) . '</p>';
+
+		echo '<h3>' . esc_html__( 'Implemented Pro features', 'eurocomply-dashboard' ) . '</h3>';
+		echo '<table class="widefat striped" style="max-width:860px;"><thead><tr>';
+		echo '<th>' . esc_html__( 'Feature', 'eurocomply-dashboard' ) . '</th>';
+		echo '<th>' . esc_html__( 'Status', 'eurocomply-dashboard' ) . '</th>';
+		echo '<th>' . esc_html__( 'Notes', 'eurocomply-dashboard' ) . '</th>';
+		echo '</tr></thead><tbody>';
+
+		$rows = array(
+			array(
+				'name'   => __( 'Daily WP-Cron compliance-score snapshot', 'eurocomply-dashboard' ),
+				'active' => $is_pro && $next_cron,
+				'note'   => $is_pro && $next_cron
+					? sprintf(
+						/* translators: %s: human-readable time until next run */
+						esc_html__( 'Next run %s.', 'eurocomply-dashboard' ),
+						esc_html( human_time_diff( time(), (int) $next_cron ) )
+					)
+					: esc_html__( 'Activate Pro and tick "daily snapshot" in Settings to schedule.', 'eurocomply-dashboard' ),
+			),
+			array(
+				'name'   => __( 'REST API (GET /compliance, /compliance/summary, /snapshots; POST /snapshots)', 'eurocomply-dashboard' ),
+				'active' => $is_pro,
+				'note'   => sprintf(
+					'<code>%s</code>',
+					esc_html( $rest_root )
+				),
+			),
+			array(
+				'name'   => __( '5,000-row CSV export cap (vs 500 free)', 'eurocomply-dashboard' ),
+				'active' => $is_pro,
+				'note'   => esc_html__( 'Plugins / alerts / snapshots datasets.', 'eurocomply-dashboard' ),
+			),
+		);
+		foreach ( $rows as $r ) {
+			$active = ! empty( $r['active'] );
+			echo '<tr>';
+			echo '<td>' . esc_html( $r['name'] ) . '</td>';
+			echo '<td>' . ( $active
+				? '<span style="color:#2a7a2a;font-weight:600;">' . esc_html__( 'Active', 'eurocomply-dashboard' ) . '</span>'
+				: '<span style="color:#a00;">' . esc_html__( 'Inactive', 'eurocomply-dashboard' ) . '</span>'
+			) . '</td>';
+			echo '<td>' . wp_kses_post( $r['note'] ) . '</td>';
+			echo '</tr>';
+		}
+		echo '</tbody></table>';
+
+		echo '<h3>' . esc_html__( 'Roadmap (Pro stubs not yet implemented)', 'eurocomply-dashboard' ) . '</h3>';
 		echo '<ul class="eurocomply-dash-pro-list">';
-		$items = array(
-			__( 'Daily WP-Cron compliance-score snapshot with retention controls', 'eurocomply-dashboard' ),
+		$stubs = array(
 			__( 'Email digest to compliance officer (weekly / monthly)', 'eurocomply-dashboard' ),
 			__( 'Slack / Teams / PagerDuty webhook on alert', 'eurocomply-dashboard' ),
 			__( 'SIEM forwarding (Splunk / ELK / Datadog) for snapshots and alerts', 'eurocomply-dashboard' ),
 			__( 'Multisite aggregator — roll up scores across a network', 'eurocomply-dashboard' ),
 			__( 'Signed PDF compliance report with all 20 plugin sections', 'eurocomply-dashboard' ),
-			__( 'REST API: GET /wp-json/eurocomply/v1/compliance', 'eurocomply-dashboard' ),
-			__( '5,000-row CSV cap (vs 500 free)', 'eurocomply-dashboard' ),
 			__( 'WPML / Polylang multi-language report templates', 'eurocomply-dashboard' ),
 			__( 'Suite-wide upgrade nudges & changelog feed', 'eurocomply-dashboard' ),
 		);
-		foreach ( $items as $i ) {
+		foreach ( $stubs as $i ) {
 			echo '<li>' . esc_html( $i ) . '</li>';
 		}
 		echo '</ul>';
-		echo '<p>' . ( License::is_pro() ? esc_html__( 'Pro is active.', 'eurocomply-dashboard' ) : esc_html__( 'Activate a license in the License tab to unlock Pro stubs.', 'eurocomply-dashboard' ) ) . '</p>';
+
+		echo '<p>' . ( $is_pro
+			? esc_html__( 'Pro is active.', 'eurocomply-dashboard' )
+			: esc_html__( 'Activate a license in the License tab to enable the implemented Pro features above.', 'eurocomply-dashboard' )
+		) . '</p>';
 	}
 
 	private function render_license() : void {

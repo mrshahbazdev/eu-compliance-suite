@@ -52,6 +52,13 @@ final class Connectors {
 			self::nis2(),
 			self::r2r(),
 			self::ai_act(),
+			self::whistleblower(),
+			self::eprivacy(),
+			self::pay_transparency(),
+			self::cbam(),
+			self::csrd(),
+			self::psd2(),
+			self::eudr(),
 		);
 	}
 
@@ -439,6 +446,296 @@ final class Connectors {
 			),
 			'alerts'    => array(),
 			'score'     => $active ? 80 : 0,
+		);
+	}
+
+	/* -------- Plugin #15 — Whistleblower (Directive (EU) 2019/1937) -------- */
+	private static function whistleblower() : array {
+		$active = class_exists( '\\EuroComply\\Whistleblower\\Plugin' ) || self::table_exists( 'eurocomply_wb_reports' );
+		$total  = self::table_count( 'eurocomply_wb_reports' );
+		$open   = self::table_count( 'eurocomply_wb_reports', "status NOT IN ('closed','rejected')" );
+		$alerts      = array();
+		$ack_overdue = 0;
+		$fb_overdue  = 0;
+
+		if ( $active ) {
+			global $wpdb;
+			$table   = $wpdb->prefix . 'eurocomply_wb_reports';
+			$option  = get_option( 'eurocomply_wb_settings', array() );
+			$ack_d   = isset( $option['ack_window_days'] ) ? max( 1, (int) $option['ack_window_days'] ) : 7;
+			$fb_d    = isset( $option['feedback_window_days'] ) ? max( 1, (int) $option['feedback_window_days'] ) : 90;
+			$ack_cut = gmdate( 'Y-m-d H:i:s', time() - $ack_d * DAY_IN_SECONDS );
+			$fb_cut  = gmdate( 'Y-m-d H:i:s', time() - $fb_d  * DAY_IN_SECONDS );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$ack_overdue = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE status NOT IN ('closed','rejected') AND created_at < %s AND acknowledged_at IS NULL", $ack_cut ) );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$fb_overdue  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE status NOT IN ('closed','rejected') AND created_at < %s AND feedback_sent_at IS NULL", $fb_cut ) );
+			if ( $ack_overdue > 0 ) {
+				$alerts[] = array(
+					'severity' => 'crit',
+					'message'  => sprintf( /* translators: %d count */ _n( '%d report past the Whistleblower Art. 9(1)(b) acknowledgement window.', '%d reports past the Whistleblower Art. 9(1)(b) acknowledgement window.', $ack_overdue, 'eurocomply-dashboard' ), $ack_overdue ),
+					'link'     => self::admin_url( 'eurocomply-wb' ),
+				);
+			}
+			if ( $fb_overdue > 0 ) {
+				$alerts[] = array(
+					'severity' => 'crit',
+					'message'  => sprintf( /* translators: %d count */ _n( '%d report past the Whistleblower Art. 9(1)(f) feedback window.', '%d reports past the Whistleblower Art. 9(1)(f) feedback window.', $fb_overdue, 'eurocomply-dashboard' ), $fb_overdue ),
+					'link'     => self::admin_url( 'eurocomply-wb' ),
+				);
+			}
+		}
+
+		return array(
+			'slug'      => 'whistleblower',
+			'name'      => __( 'Whistleblower', 'eurocomply-dashboard' ),
+			'reference' => 'Directive (EU) 2019/1937',
+			'active'    => $active,
+			'pro'       => self::is_pro( 'eurocomply_wb_license' ),
+			'menu_url'  => self::admin_url( 'eurocomply-wb' ),
+			'metrics'   => array(
+				array( 'label' => __( 'Reports total', 'eurocomply-dashboard' ), 'value' => $total ),
+				array( 'label' => __( 'Open', 'eurocomply-dashboard' ), 'value' => $open ),
+				array( 'label' => __( 'Ack overdue', 'eurocomply-dashboard' ), 'value' => $ack_overdue ),
+				array( 'label' => __( 'Feedback overdue', 'eurocomply-dashboard' ), 'value' => $fb_overdue ),
+			),
+			'alerts'    => $alerts,
+			'score'     => $active ? max( 0, 100 - 25 * ( min( 2, $ack_overdue ) + min( 2, $fb_overdue ) ) ) : 0,
+		);
+	}
+
+	/* -------- Plugin #16 — ePrivacy / Tracker Registry -------- */
+	private static function eprivacy() : array {
+		$active   = class_exists( '\\EuroComply\\EPrivacy\\Plugin' ) || self::table_exists( 'eurocomply_eprivacy_scans' );
+		$scans    = self::table_count( 'eurocomply_eprivacy_scans' );
+		$findings = self::table_count( 'eurocomply_eprivacy_findings' );
+		$cookies  = self::table_count( 'eurocomply_eprivacy_cookies' );
+		$alerts   = array();
+
+		if ( $active && 0 === $scans ) {
+			$alerts[] = array(
+				'severity' => 'warn',
+				'message'  => __( 'No tracker scans run yet. Schedule a scan to detect third-party SDKs.', 'eurocomply-dashboard' ),
+				'link'     => self::admin_url( 'eurocomply-eprivacy' ),
+			);
+		}
+
+		return array(
+			'slug'      => 'eprivacy',
+			'name'      => __( 'ePrivacy & Tracker Registry', 'eurocomply-dashboard' ),
+			'reference' => 'Dir. 2002/58/EC + ePrivacy Reg. (proposal)',
+			'active'    => $active,
+			'pro'       => self::is_pro( 'eurocomply_eprivacy_license' ),
+			'menu_url'  => self::admin_url( 'eurocomply-eprivacy' ),
+			'metrics'   => array(
+				array( 'label' => __( 'Scans', 'eurocomply-dashboard' ), 'value' => $scans ),
+				array( 'label' => __( 'Findings', 'eurocomply-dashboard' ), 'value' => $findings ),
+				array( 'label' => __( 'Cookies', 'eurocomply-dashboard' ), 'value' => $cookies ),
+			),
+			'alerts'    => $alerts,
+			'score'     => $active ? ( $scans > 0 ? 80 : 50 ) : 0,
+		);
+	}
+
+	/* -------- Plugin #17 — Pay Transparency (Directive (EU) 2023/970) -------- */
+	private static function pay_transparency() : array {
+		$active     = class_exists( '\\EuroComply\\PayTransparency\\Plugin' ) || self::table_exists( 'eurocomply_pt_requests' );
+		$employees  = self::table_count( 'eurocomply_pt_employees' );
+		$requests   = self::table_count( 'eurocomply_pt_requests' );
+		$reports    = self::table_count( 'eurocomply_pt_reports' );
+		$alerts     = array();
+		$overdue    = 0;
+
+		if ( $active ) {
+			global $wpdb;
+			$table = $wpdb->prefix . 'eurocomply_pt_requests';
+			$cut   = gmdate( 'Y-m-d H:i:s', time() - 60 * DAY_IN_SECONDS );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$overdue = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE status NOT IN ('responded','rejected') AND created_at < %s", $cut ) );
+			if ( $overdue > 0 ) {
+				$alerts[] = array(
+					'severity' => 'crit',
+					'message'  => sprintf( /* translators: %d count */ _n( '%d worker pay-information request past the Art. 7(1) two-month deadline.', '%d worker pay-information requests past the Art. 7(1) two-month deadline.', $overdue, 'eurocomply-dashboard' ), $overdue ),
+					'link'     => self::admin_url( 'eurocomply-pay-transparency' ),
+				);
+			}
+		}
+
+		return array(
+			'slug'      => 'pay-transparency',
+			'name'      => __( 'Pay Transparency', 'eurocomply-dashboard' ),
+			'reference' => 'Directive (EU) 2023/970',
+			'active'    => $active,
+			'pro'       => self::is_pro( 'eurocomply_pay_transparency_license' ),
+			'menu_url'  => self::admin_url( 'eurocomply-pay-transparency' ),
+			'metrics'   => array(
+				array( 'label' => __( 'Employees', 'eurocomply-dashboard' ), 'value' => $employees ),
+				array( 'label' => __( 'Info requests', 'eurocomply-dashboard' ), 'value' => $requests ),
+				array( 'label' => __( 'Reports', 'eurocomply-dashboard' ), 'value' => $reports ),
+				array( 'label' => __( 'Overdue', 'eurocomply-dashboard' ), 'value' => $overdue ),
+			),
+			'alerts'    => $alerts,
+			'score'     => $active ? max( 0, 100 - 25 * min( 4, $overdue ) ) : 0,
+		);
+	}
+
+	/* -------- Plugin #18 — CBAM -------- */
+	private static function cbam() : array {
+		$active    = class_exists( '\\EuroComply\\CBAM\\Plugin' ) || self::table_exists( 'eurocomply_cbam_imports' );
+		$imports   = self::table_count( 'eurocomply_cbam_imports' );
+		$reports   = self::table_count( 'eurocomply_cbam_reports' );
+		$verifiers = self::table_count( 'eurocomply_cbam_verifiers' );
+		$alerts    = array();
+		$unverified = 0;
+
+		if ( $active ) {
+			$unverified = self::table_count( 'eurocomply_cbam_imports', 'emissions_verified = %d', array( 0 ) );
+			if ( $unverified > 0 ) {
+				$alerts[] = array(
+					'severity' => 'warn',
+					'message'  => sprintf( /* translators: %d count */ _n( '%d CBAM import row uses default emissions (Reg. 2023/1773 transitional).', '%d CBAM import rows use default emissions (Reg. 2023/1773 transitional).', $unverified, 'eurocomply-dashboard' ), $unverified ),
+					'link'     => self::admin_url( 'eurocomply-cbam' ),
+				);
+			}
+		}
+
+		return array(
+			'slug'      => 'cbam',
+			'name'      => __( 'Carbon Border Adjustment (CBAM)', 'eurocomply-dashboard' ),
+			'reference' => 'Reg. (EU) 2023/956 + 2023/1773',
+			'active'    => $active,
+			'pro'       => self::is_pro( 'eurocomply_cbam_license' ),
+			'menu_url'  => self::admin_url( 'eurocomply-cbam' ),
+			'metrics'   => array(
+				array( 'label' => __( 'Imports', 'eurocomply-dashboard' ), 'value' => $imports ),
+				array( 'label' => __( 'Reports', 'eurocomply-dashboard' ), 'value' => $reports ),
+				array( 'label' => __( 'Verifiers', 'eurocomply-dashboard' ), 'value' => $verifiers ),
+				array( 'label' => __( 'Default emissions', 'eurocomply-dashboard' ), 'value' => $unverified ),
+			),
+			'alerts'    => $alerts,
+			'score'     => $active ? ( $imports > 0 ? max( 40, 100 - 5 * min( 12, $unverified ) ) : 60 ) : 0,
+		);
+	}
+
+	/* -------- Plugin #19 — CSRD / ESRS -------- */
+	private static function csrd() : array {
+		$active     = class_exists( '\\EuroComply\\CSRD\\Plugin' ) || self::table_exists( 'eurocomply_csrd_materiality' );
+		$topics     = self::table_count( 'eurocomply_csrd_materiality' );
+		$datapoints = self::table_count( 'eurocomply_csrd_datapoints' );
+		$reports    = self::table_count( 'eurocomply_csrd_reports' );
+		$assurance  = self::table_count( 'eurocomply_csrd_assurance' );
+		$alerts     = array();
+
+		if ( $active && 0 === $topics ) {
+			$alerts[] = array(
+				'severity' => 'warn',
+				'message'  => __( 'Double-materiality assessment empty (ESRS 1 §3).', 'eurocomply-dashboard' ),
+				'link'     => self::admin_url( 'eurocomply-csrd-esrs' ),
+			);
+		}
+
+		return array(
+			'slug'      => 'csrd',
+			'name'      => __( 'CSRD / ESRS', 'eurocomply-dashboard' ),
+			'reference' => 'Dir. (EU) 2022/2464 + ESRS Set 1',
+			'active'    => $active,
+			'pro'       => self::is_pro( 'eurocomply_csrd_license' ),
+			'menu_url'  => self::admin_url( 'eurocomply-csrd-esrs' ),
+			'metrics'   => array(
+				array( 'label' => __( 'Material topics', 'eurocomply-dashboard' ), 'value' => $topics ),
+				array( 'label' => __( 'Data points', 'eurocomply-dashboard' ), 'value' => $datapoints ),
+				array( 'label' => __( 'Reports', 'eurocomply-dashboard' ), 'value' => $reports ),
+				array( 'label' => __( 'Assurance', 'eurocomply-dashboard' ), 'value' => $assurance ),
+			),
+			'alerts'    => $alerts,
+			'score'     => $active ? ( $topics > 0 ? 80 : 50 ) : 0,
+		);
+	}
+
+	/* -------- Plugin #20 — PSD2 / SCA -------- */
+	private static function psd2() : array {
+		$active = class_exists( '\\EuroComply\\PSD2\\Plugin' ) || self::table_exists( 'eurocomply_psd2_transactions' );
+		$tx     = self::table_count( 'eurocomply_psd2_transactions' );
+		$fraud  = self::table_count( 'eurocomply_psd2_fraud' );
+		$cons   = self::table_count( 'eurocomply_psd2_consents' );
+		$tpps   = self::table_count( 'eurocomply_psd2_tpps' );
+		$alerts = array();
+
+		if ( $active && $fraud > 0 && $tx > 0 ) {
+			$rate = ( $fraud / $tx ) * 100;
+			if ( $rate > 0.13 ) { // RTS 2018/389 reference fraud-rate threshold (low end).
+				$alerts[] = array(
+					'severity' => 'warn',
+					'message'  => sprintf( /* translators: %s percent */ __( 'Fraud rate %s%% exceeds RTS 2018/389 reference band — review TRA exemption usage.', 'eurocomply-dashboard' ), number_format_i18n( $rate, 2 ) ),
+					'link'     => self::admin_url( 'eurocomply-psd2-sca' ),
+				);
+			}
+		}
+
+		return array(
+			'slug'      => 'psd2',
+			'name'      => __( 'PSD2 / SCA', 'eurocomply-dashboard' ),
+			'reference' => 'Dir. (EU) 2015/2366 + RTS 2018/389',
+			'active'    => $active,
+			'pro'       => self::is_pro( 'eurocomply_psd2_license' ),
+			'menu_url'  => self::admin_url( 'eurocomply-psd2-sca' ),
+			'metrics'   => array(
+				array( 'label' => __( 'Transactions', 'eurocomply-dashboard' ), 'value' => $tx ),
+				array( 'label' => __( 'Fraud', 'eurocomply-dashboard' ), 'value' => $fraud ),
+				array( 'label' => __( 'Consents', 'eurocomply-dashboard' ), 'value' => $cons ),
+				array( 'label' => __( 'TPPs', 'eurocomply-dashboard' ), 'value' => $tpps ),
+			),
+			'alerts'    => $alerts,
+			'score'     => $active ? 80 : 0,
+		);
+	}
+
+	/* -------- Plugin #21 — EUDR (Reg. (EU) 2023/1115) -------- */
+	private static function eudr() : array {
+		$active    = class_exists( '\\EuroComply\\EUDR\\Plugin' ) || self::table_exists( 'eurocomply_eudr_shipments' );
+		$suppliers = self::table_count( 'eurocomply_eudr_suppliers' );
+		$plots     = self::table_count( 'eurocomply_eudr_plots' );
+		$shipments = self::table_count( 'eurocomply_eudr_shipments' );
+		$risk      = self::table_count( 'eurocomply_eudr_risk' );
+		$alerts    = array();
+		$high_risk = 0;
+		$drafts    = 0;
+
+		if ( $active ) {
+			$high_risk = self::table_count( 'eurocomply_eudr_shipments', "risk_level = 'high'" );
+			$drafts    = self::table_count( 'eurocomply_eudr_shipments', "dds_status = 'draft'" );
+			if ( $high_risk > 0 ) {
+				$alerts[] = array(
+					'severity' => 'crit',
+					'message'  => sprintf( /* translators: %d count */ _n( '%d shipment classified high-risk under EUDR Art. 10 — enhanced due diligence required.', '%d shipments classified high-risk under EUDR Art. 10 — enhanced due diligence required.', $high_risk, 'eurocomply-dashboard' ), $high_risk ),
+					'link'     => self::admin_url( 'eurocomply-eudr' ),
+				);
+			}
+			if ( $drafts > 0 ) {
+				$alerts[] = array(
+					'severity' => 'warn',
+					'message'  => sprintf( /* translators: %d count */ _n( '%d EUDR DDS still in draft (not yet submitted to TRACES NT).', '%d EUDR DDS still in draft (not yet submitted to TRACES NT).', $drafts, 'eurocomply-dashboard' ), $drafts ),
+					'link'     => self::admin_url( 'eurocomply-eudr' ),
+				);
+			}
+		}
+
+		return array(
+			'slug'      => 'eudr',
+			'name'      => __( 'EU Deforestation Reg. (EUDR)', 'eurocomply-dashboard' ),
+			'reference' => 'Reg. (EU) 2023/1115',
+			'active'    => $active,
+			'pro'       => self::is_pro( 'eurocomply_eudr_license' ),
+			'menu_url'  => self::admin_url( 'eurocomply-eudr' ),
+			'metrics'   => array(
+				array( 'label' => __( 'Suppliers', 'eurocomply-dashboard' ), 'value' => $suppliers ),
+				array( 'label' => __( 'Plots', 'eurocomply-dashboard' ), 'value' => $plots ),
+				array( 'label' => __( 'Shipments', 'eurocomply-dashboard' ), 'value' => $shipments ),
+				array( 'label' => __( 'Risk rows', 'eurocomply-dashboard' ), 'value' => $risk ),
+				array( 'label' => __( 'High-risk', 'eurocomply-dashboard' ), 'value' => $high_risk ),
+			),
+			'alerts'    => $alerts,
+			'score'     => $active ? max( 0, 100 - 30 * min( 2, $high_risk ) - 10 * min( 4, $drafts ) ) : 0,
 		);
 	}
 

@@ -232,6 +232,14 @@ final class Admin {
 			array( '6 m',   'EAA / EN 301 549',      __( 'Bi-annual accessibility statement review.', 'eurocomply-dashboard' ) ),
 			array( '12 m',  'DSA Art. 15 / 24',      __( 'Annual transparency report.', 'eurocomply-dashboard' ) ),
 			array( '12 m',  'EU AI Act Art. 50',     __( 'Provider-registry review and AI policy refresh.', 'eurocomply-dashboard' ) ),
+			array( '7 d',   'Whistleblower 9(1)(b)', __( 'Acknowledge whistleblower report receipt.', 'eurocomply-dashboard' ) ),
+			array( '3 m',   'Whistleblower 9(1)(f)', __( 'Provide feedback to whistleblower on action taken.', 'eurocomply-dashboard' ) ),
+			array( '2 m',   'Pay Transp. Art. 7(1)', __( 'Respond to a worker pay-information request.', 'eurocomply-dashboard' ) ),
+			array( '12 m',  'Pay Transp. Art. 9',    __( 'Annual gender pay-gap report (employers ≥ 250).', 'eurocomply-dashboard' ) ),
+			array( 'Q',     'CBAM Reg. 2023/1773',   __( 'Quarterly CBAM declaration (transitional).', 'eurocomply-dashboard' ) ),
+			array( '12 m',  'CSRD / ESRS',           __( 'Annual sustainability statement, third-party assurance.', 'eurocomply-dashboard' ) ),
+			array( '4 q',   'PSD2 RTS 2018/389',     __( 'Quarterly fraud-rate review for SCA TRA exemption.', 'eurocomply-dashboard' ) ),
+			array( 'Per',   'EUDR Art. 4',           __( 'Submit DDS to TRACES NT before placing on market.', 'eurocomply-dashboard' ) ),
 		);
 		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Window', 'eurocomply-dashboard' ) . '</th><th>' . esc_html__( 'Reference', 'eurocomply-dashboard' ) . '</th><th>' . esc_html__( 'Obligation', 'eurocomply-dashboard' ) . '</th></tr></thead><tbody>';
 		foreach ( $items as $row ) {
@@ -318,7 +326,7 @@ final class Admin {
 			__( 'Slack / Teams / PagerDuty webhook on alert', 'eurocomply-dashboard' ),
 			__( 'SIEM forwarding (Splunk / ELK / Datadog) for snapshots and alerts', 'eurocomply-dashboard' ),
 			__( 'Multisite aggregator — roll up scores across a network', 'eurocomply-dashboard' ),
-			__( 'Signed PDF compliance report with all 13 plugin sections', 'eurocomply-dashboard' ),
+			__( 'Signed PDF compliance report with all 20 plugin sections', 'eurocomply-dashboard' ),
 			__( 'REST API: GET /wp-json/eurocomply/v1/compliance', 'eurocomply-dashboard' ),
 			__( '5,000-row CSV cap (vs 500 free)', 'eurocomply-dashboard' ),
 			__( 'WPML / Polylang multi-language report templates', 'eurocomply-dashboard' ),

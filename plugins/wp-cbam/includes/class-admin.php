@@ -440,6 +440,16 @@ final class Admin {
 		if ( 'create' === $op ) {
 			$id = ImportStore::create( $row );
 			add_settings_error( 'eurocomply_cbam', 'imp-ok', sprintf( /* translators: %d: id */ __( 'Import #%d added.', 'eurocomply-cbam' ), $id ), 'updated' );
+			$persisted = $id > 0 ? ImportStore::get( $id ) : null;
+			/**
+			 * Fired after a CBAM import row is recorded. Sister
+			 * plugins (e.g. EuroComply CSRD/ESRS #19) listen on
+			 * this to refresh aggregated sustainability datapoints.
+			 *
+			 * @param int                 $import_id Import row id.
+			 * @param array<string,mixed> $row       Persisted import row.
+			 */
+			do_action( 'eurocomply_cbam_import_recorded', $id, is_array( $persisted ) ? $persisted : array() );
 		}
 		set_transient( 'settings_errors', get_settings_errors(), 30 );
 		wp_safe_redirect( add_query_arg( array( 'page' => self::MENU_SLUG, 'tab' => 'imports', 'settings-updated' => 'true' ), admin_url( 'admin.php' ) ) );

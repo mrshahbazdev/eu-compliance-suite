@@ -33,6 +33,7 @@ final class Plugin {
 		ReportStore::maybe_upgrade();
 		Admin::instance();
 		CsvExport::instance();
+		SustainabilityBridge::register();
 	}
 
 	public static function activate() : void {

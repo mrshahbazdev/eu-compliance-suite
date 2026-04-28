@@ -250,6 +250,23 @@ final class Admin {
 		submit_button( __( 'Export datapoints CSV', 'eurocomply-csrd-esrs' ), 'secondary', 'submit', false );
 		echo '</form>';
 
+		if ( SustainabilityBridge::cbam_active() || SustainabilityBridge::eudr_active() ) {
+			echo '<div class="notice notice-info inline" style="margin-bottom:1em;"><p><strong>' . esc_html__( 'Sister-plugin bridges available', 'eurocomply-csrd-esrs' ) . '</strong></p>';
+			echo '<p>' . esc_html__( 'Re-aggregate operational data already maintained for CBAM (Reg. (EU) 2023/956) or EUDR (Reg. (EU) 2023/1115) into the matching ESRS datapoint for the reporting year above.', 'eurocomply-csrd-esrs' ) . '</p>';
+			echo '<form method="post" action="' . $action . '" style="display:inline-block;margin-right:0.5em;">';
+			echo '<input type="hidden" name="action" value="eurocomply_csrd_datapoint" />';
+			echo '<input type="hidden" name="op"     value="bridge_refresh" />';
+			wp_nonce_field( self::NONCE_DATAPOINT );
+			echo '<input type="hidden" name="row[year]" value="' . esc_attr( (string) $year ) . '" />';
+			if ( SustainabilityBridge::cbam_active() ) {
+				echo '<button type="submit" name="bridge" value="cbam" class="button">' . esc_html__( 'Refresh E1-6-S3 from CBAM imports', 'eurocomply-csrd-esrs' ) . '</button> ';
+			}
+			if ( SustainabilityBridge::eudr_active() ) {
+				echo '<button type="submit" name="bridge" value="eudr" class="button">' . esc_html__( 'Refresh E5-4-INFLOW from EUDR shipments', 'eurocomply-csrd-esrs' ) . '</button>';
+			}
+			echo '</form></div>';
+		}
+
 		echo '<form method="post" action="' . $action . '">';
 		echo '<input type="hidden" name="action" value="eurocomply_csrd_datapoint" />';
 		echo '<input type="hidden" name="op"     value="upsert" />';
@@ -524,6 +541,26 @@ final class Admin {
 		}
 		check_admin_referer( self::NONCE_DATAPOINT );
 		$year = isset( $_POST['row']['year'] ) ? (int) $_POST['row']['year'] : (int) Settings::get()['reporting_year'];
+		$op   = isset( $_POST['op'] ) ? sanitize_key( (string) $_POST['op'] ) : 'upsert';
+		if ( 'bridge_refresh' === $op ) {
+			$bridge = isset( $_POST['bridge'] ) ? sanitize_key( (string) $_POST['bridge'] ) : '';
+			if ( 'cbam' === $bridge ) {
+				$value = SustainabilityBridge::refresh_cbam_for_year( $year );
+				$msg   = null === $value
+					? __( 'CBAM plugin not active — bridge skipped.', 'eurocomply-csrd-esrs' )
+					: sprintf( /* translators: 1: year, 2: tCO2e */ __( 'CBAM bridge refreshed E1-6-S3 for FY %1$d → %2$s tCO2e.', 'eurocomply-csrd-esrs' ), $year, number_format_i18n( $value, 2 ) );
+				add_settings_error( 'eurocomply_csrd', 'br-cbam', $msg, 'updated' );
+			} elseif ( 'eudr' === $bridge ) {
+				$value = SustainabilityBridge::refresh_eudr_for_year( $year );
+				$msg   = null === $value
+					? __( 'EUDR plugin not active — bridge skipped.', 'eurocomply-csrd-esrs' )
+					: sprintf( /* translators: 1: year, 2: tonnes */ __( 'EUDR bridge refreshed E5-4-INFLOW for FY %1$d → %2$s t.', 'eurocomply-csrd-esrs' ), $year, number_format_i18n( $value, 2 ) );
+				add_settings_error( 'eurocomply_csrd', 'br-eudr', $msg, 'updated' );
+			}
+			set_transient( 'settings_errors', get_settings_errors(), 30 );
+			wp_safe_redirect( add_query_arg( array( 'page' => self::MENU_SLUG, 'tab' => 'datapoints', 'settings-updated' => 'true' ), admin_url( 'admin.php' ) ) );
+			exit;
+		}
 		$dps  = isset( $_POST['dp'] ) && is_array( $_POST['dp'] ) ? wp_unslash( (array) $_POST['dp'] ) : array();
 		$saved = 0;
 		foreach ( $dps as $id => $vals ) {

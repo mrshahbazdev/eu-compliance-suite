@@ -663,6 +663,16 @@ final class Admin {
 			$row = isset( $_POST['row'] ) && is_array( $_POST['row'] ) ? wp_unslash( (array) $_POST['row'] ) : array();
 			$id  = ShipmentStore::create( $row );
 			add_settings_error( 'eurocomply_eudr', 'sh-ok', sprintf( /* translators: %d: id */ __( 'Shipment #%d added.', 'eurocomply-eudr' ), $id ), 'updated' );
+			$persisted = $id > 0 ? ShipmentStore::get( $id ) : null;
+			/**
+			 * Fired after an EUDR shipment row is recorded. Sister
+			 * plugins (e.g. EuroComply CSRD/ESRS #19) listen on this
+			 * to refresh aggregated sustainability datapoints.
+			 *
+			 * @param int                 $shipment_id Shipment row id.
+			 * @param array<string,mixed> $row         Persisted shipment row.
+			 */
+			do_action( 'eurocomply_eudr_shipment_recorded', $id, is_array( $persisted ) ? $persisted : array() );
 		}
 		set_transient( 'settings_errors', get_settings_errors(), 30 );
 		wp_safe_redirect( add_query_arg( array( 'page' => self::MENU_SLUG, 'tab' => 'shipments', 'settings-updated' => 'true' ), admin_url( 'admin.php' ) ) );

@@ -33,6 +33,7 @@ final class Plugin {
 		EventLogger::instance();
 		VulnReportForm::instance();
 		CsvExport::instance();
+		DsarBridge::register();
 	}
 
 	public static function activate() : void {

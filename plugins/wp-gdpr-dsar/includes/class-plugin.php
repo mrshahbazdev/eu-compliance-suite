@@ -32,6 +32,7 @@ final class Plugin {
 		RequestForm::instance();
 		CsvExport::instance();
 		ErasureManager::instance();
+		Nis2Bridge::register();
 	}
 
 	public static function activate() : void {

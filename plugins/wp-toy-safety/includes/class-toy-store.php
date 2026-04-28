@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class ToyStore {
 
 	private const DB_VERSION_OPTION = 'eurocomply_toy_toys_db_version';
-	private const DB_VERSION        = '0.1.0';
+	private const DB_VERSION        = '0.2.0';
 
 	public static function table_name() : string {
 		global $wpdb;
@@ -51,11 +51,14 @@ final class ToyStore {
 			doc_url VARCHAR(255) NOT NULL DEFAULT '',
 			dpp_url VARCHAR(255) NOT NULL DEFAULT '',
 			image_url VARCHAR(255) NOT NULL DEFAULT '',
+			linked_product_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			gpsr_synced_at DATETIME NULL,
 			status VARCHAR(24) NOT NULL DEFAULT 'on_market',
 			notes LONGTEXT NULL,
 			PRIMARY KEY  (id),
 			KEY gtin (gtin),
-			KEY status (status)
+			KEY status (status),
+			KEY linked_product_id (linked_product_id)
 		) {$charset};";
 		dbDelta( $sql );
 		update_option( self::DB_VERSION_OPTION, self::DB_VERSION, false );
@@ -73,26 +76,77 @@ final class ToyStore {
 		$wpdb->insert(
 			self::table_name(),
 			array(
-				'created_at'     => current_time( 'mysql' ),
-				'name'           => sanitize_text_field( (string) ( $row['name'] ?? '' ) ),
-				'model'          => sanitize_text_field( (string) ( $row['model'] ?? '' ) ),
-				'gtin'           => preg_replace( '/[^0-9]/', '', (string) ( $row['gtin'] ?? '' ) ),
-				'batch'          => sanitize_text_field( (string) ( $row['batch'] ?? '' ) ),
-				'age_range'      => array_key_exists( (string) ( $row['age_range'] ?? '' ), Settings::age_ranges() ) ? (string) $row['age_range'] : '36-72',
-				'under_36'       => ! empty( $row['under_36'] ) ? 1 : 0,
-				'category'       => sanitize_text_field( (string) ( $row['category'] ?? '' ) ),
-				'materials'      => wp_kses_post( (string) ( $row['materials'] ?? '' ) ),
-				'warnings'       => wp_kses_post( (string) ( $row['warnings'] ?? '' ) ),
-				'origin_country' => strtoupper( substr( (string) ( $row['origin_country'] ?? '' ), 0, 2 ) ),
-				'ce_marked'      => ! empty( $row['ce_marked'] ) ? 1 : 0,
-				'doc_url'        => esc_url_raw( (string) ( $row['doc_url'] ?? '' ) ),
-				'dpp_url'        => esc_url_raw( (string) ( $row['dpp_url'] ?? '' ) ),
-				'image_url'      => esc_url_raw( (string) ( $row['image_url'] ?? '' ) ),
-				'status'         => in_array( (string) ( $row['status'] ?? 'on_market' ), array( 'draft', 'on_market', 'recalled', 'withdrawn' ), true ) ? (string) $row['status'] : 'on_market',
-				'notes'          => wp_kses_post( (string) ( $row['notes'] ?? '' ) ),
+				'created_at'        => current_time( 'mysql' ),
+				'name'              => sanitize_text_field( (string) ( $row['name'] ?? '' ) ),
+				'model'             => sanitize_text_field( (string) ( $row['model'] ?? '' ) ),
+				'gtin'              => preg_replace( '/[^0-9]/', '', (string) ( $row['gtin'] ?? '' ) ),
+				'batch'             => sanitize_text_field( (string) ( $row['batch'] ?? '' ) ),
+				'age_range'         => array_key_exists( (string) ( $row['age_range'] ?? '' ), Settings::age_ranges() ) ? (string) $row['age_range'] : '36-72',
+				'under_36'          => ! empty( $row['under_36'] ) ? 1 : 0,
+				'category'          => sanitize_text_field( (string) ( $row['category'] ?? '' ) ),
+				'materials'         => wp_kses_post( (string) ( $row['materials'] ?? '' ) ),
+				'warnings'          => wp_kses_post( (string) ( $row['warnings'] ?? '' ) ),
+				'origin_country'    => strtoupper( substr( (string) ( $row['origin_country'] ?? '' ), 0, 2 ) ),
+				'ce_marked'         => ! empty( $row['ce_marked'] ) ? 1 : 0,
+				'doc_url'           => esc_url_raw( (string) ( $row['doc_url'] ?? '' ) ),
+				'dpp_url'           => esc_url_raw( (string) ( $row['dpp_url'] ?? '' ) ),
+				'image_url'         => esc_url_raw( (string) ( $row['image_url'] ?? '' ) ),
+				'linked_product_id' => max( 0, (int) ( $row['linked_product_id'] ?? 0 ) ),
+				'status'            => in_array( (string) ( $row['status'] ?? 'on_market' ), array( 'draft', 'on_market', 'recalled', 'withdrawn' ), true ) ? (string) $row['status'] : 'on_market',
+				'notes'             => wp_kses_post( (string) ( $row['notes'] ?? '' ) ),
 			)
 		);
 		return (int) $wpdb->insert_id;
+	}
+
+	/**
+	 * Update an existing toy. Caller is responsible for whitelisting fields.
+	 *
+	 * @param array<string,mixed> $row
+	 */
+	public static function update( int $id, array $row ) : bool {
+		if ( $id <= 0 || empty( $row ) ) {
+			return false;
+		}
+		global $wpdb;
+		$allowed = array(
+			'name', 'model', 'gtin', 'batch', 'age_range', 'under_36', 'category',
+			'materials', 'warnings', 'origin_country', 'ce_marked', 'doc_url',
+			'dpp_url', 'image_url', 'linked_product_id', 'gpsr_synced_at',
+			'status', 'notes',
+		);
+		$data = array_intersect_key( $row, array_flip( $allowed ) );
+		if ( empty( $data ) ) {
+			return false;
+		}
+		$ok = $wpdb->update( self::table_name(), $data, array( 'id' => $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		return false !== $ok;
+	}
+
+	/**
+	 * Find a toy by linked WC product id (>0) or normalised GTIN.
+	 *
+	 * @return array<string,mixed>|null
+	 */
+	public static function find_by_product_or_gtin( int $product_id, string $gtin ) : ?array {
+		global $wpdb;
+		$table = self::table_name();
+		if ( $product_id > 0 ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE linked_product_id = %d ORDER BY id DESC LIMIT 1", $product_id ), ARRAY_A );
+			if ( $row ) {
+				return (array) $row;
+			}
+		}
+		$gtin = preg_replace( '/[^0-9]/', '', $gtin );
+		if ( '' !== $gtin ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE gtin = %s ORDER BY id DESC LIMIT 1", $gtin ), ARRAY_A );
+			if ( $row ) {
+				return (array) $row;
+			}
+		}
+		return null;
 	}
 
 	public static function delete( int $id ) : void {

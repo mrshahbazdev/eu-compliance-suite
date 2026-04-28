@@ -49,6 +49,7 @@ final class Plugin {
 				if ( class_exists( '\\WooCommerce' ) || function_exists( 'WC' ) ) {
 					ProductFields::instance();
 					Frontend::instance();
+					ToyBridge::register();
 				}
 			},
 			20

@@ -160,6 +160,7 @@ final class ProductFields {
 
 		$allowed_keys = array_column( self::FIELDS, 'type', 'key' );
 
+		$payload = array();
 		foreach ( $allowed_keys as $key => $type ) {
 			$value = isset( $raw[ $key ] ) ? (string) $raw[ $key ] : '';
 			$value = 'textarea' === $type ? sanitize_textarea_field( $value ) : sanitize_text_field( $value );
@@ -168,7 +169,18 @@ final class ProductFields {
 			} else {
 				update_post_meta( $post_id, $key, $value );
 			}
+			$payload[ $key ] = $value;
 		}
+
+		/**
+		 * Fired after GPSR product meta has been saved. Sister plugins
+		 * (e.g. EuroComply Toy Safety #25) listen on this to keep their
+		 * own product-meta records in sync.
+		 *
+		 * @param int                  $post_id Product post id.
+		 * @param array<string,string> $payload Saved GPSR field values.
+		 */
+		do_action( 'eurocomply_gpsr_product_saved', $post_id, $payload );
 	}
 
 	/**

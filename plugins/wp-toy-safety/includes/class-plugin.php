@@ -34,6 +34,7 @@ final class Plugin {
 		OperatorStore::maybe_upgrade();
 		Admin::instance();
 		CsvExport::instance();
+		GpsrBridge::register();
 	}
 
 	public static function activate() : void {

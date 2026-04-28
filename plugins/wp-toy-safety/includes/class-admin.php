@@ -174,6 +174,7 @@ final class Admin {
 		$this->row( 'doc_url',   __( 'EU Declaration of Conformity URL', 'eurocomply-toy-safety' ), 'url' );
 		$this->row( 'dpp_url',   __( 'External DPP URL (optional)',         'eurocomply-toy-safety' ), 'url' );
 		$this->row( 'image_url', __( 'Image URL',                              'eurocomply-toy-safety' ), 'url' );
+		$this->row( 'linked_product_id', __( 'Linked WooCommerce product ID (for GPSR sync)', 'eurocomply-toy-safety' ), 'number' );
 		$this->select( 'status', __( 'Status', 'eurocomply-toy-safety' ), array( 'draft', 'on_market', 'recalled', 'withdrawn' ), 'on_market' );
 		$this->textarea( 'materials', __( 'Materials',           'eurocomply-toy-safety' ) );
 		$this->textarea( 'warnings',  __( 'Warnings (Art. 11)',     'eurocomply-toy-safety' ) );
@@ -557,7 +558,20 @@ final class Admin {
 	public function handle_toy() : void {
 		if ( ! current_user_can( 'manage_options' ) ) { wp_die( esc_html__( 'Insufficient permissions.', 'eurocomply-toy-safety' ), 403 ); }
 		check_admin_referer( self::NONCE_TOY );
-		ToyStore::create( wp_unslash( $_POST ) );
+		$raw   = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		$id    = ToyStore::create( $raw );
+		$row   = $id > 0 ? ToyStore::get( $id ) : null;
+
+		/**
+		 * Fired after a toy register row has been created. Sister
+		 * plugins (e.g. EuroComply GPSR #4) listen on this to keep
+		 * their own product-meta records in sync.
+		 *
+		 * @param int                 $toy_id Toy row id.
+		 * @param array<string,mixed> $row    Persisted toy row.
+		 */
+		do_action( 'eurocomply_toy_saved', $id, is_array( $row ) ? $row : array() );
+
 		$this->redirect_with_notice( 'toys', __( 'Toy recorded.', 'eurocomply-toy-safety' ) );
 	}
 

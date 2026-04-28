@@ -33,6 +33,7 @@ final class Plugin {
 		Shortcodes::instance();
 		Admin::instance();
 		CsvExport::instance();
+		DsarBridge::register();
 	}
 
 	public static function activate() : void {

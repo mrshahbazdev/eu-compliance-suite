@@ -147,8 +147,27 @@ final class ReportStore {
 	}
 
 	/**
+	 * Look up identified-reporter reports whose contact_value matches the
+	 * given email address. Used by the GDPR DSAR bridge to surface report
+	 * metadata in personal-data exports.
+	 *
 	 * @return array<int,array<string,mixed>>
 	 */
+	public static function find_by_email( string $email ) : array {
+		global $wpdb;
+		$email = sanitize_email( $email );
+		if ( '' === $email || ! is_email( $email ) ) {
+			return array();
+		}
+		$table = self::table_name();
+		$sql   = $wpdb->prepare(
+			"SELECT * FROM {$table} WHERE anonymous = 0 AND contact_value = %s ORDER BY id DESC LIMIT 200", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$email
+		);
+		$rows  = $wpdb->get_results( $sql, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		return is_array( $rows ) ? $rows : array();
+	}
+
 	public static function recent( int $limit = 50, string $status = '' ) : array {
 		global $wpdb;
 		$limit = max( 1, min( 5000, $limit ) );

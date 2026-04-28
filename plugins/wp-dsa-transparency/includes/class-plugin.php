@@ -34,6 +34,7 @@ final class Plugin {
 		NoticeForm::instance();
 		TraderForm::instance();
 		CsvExport::instance();
+		AiActBridge::register();
 	}
 
 	public static function activate() : void {

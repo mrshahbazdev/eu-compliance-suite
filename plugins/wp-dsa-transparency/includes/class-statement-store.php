@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class StatementStore {
 
 	public const DB_VERSION_OPTION = 'eurocomply_dsa_statements_db_version';
-	public const DB_VERSION        = '1.0.0';
+	public const DB_VERSION        = '1.1.0';
 
 	public static function table_name() : string {
 		global $wpdb;
@@ -52,12 +52,16 @@ final class StatementStore {
 			redress_info TEXT NULL,
 			issued_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
 			submitted_to_db TINYINT(1) NOT NULL DEFAULT 0,
+			ai_generated TINYINT(1) NULL DEFAULT NULL,
+			ai_provider VARCHAR(64) NOT NULL DEFAULT '',
+			ai_deepfake TINYINT(1) NULL DEFAULT NULL,
 			PRIMARY KEY  (id),
 			KEY issued_at (issued_at),
 			KEY notice_id (notice_id),
 			KEY target_post_id (target_post_id),
 			KEY category (category),
-			KEY restriction_type (restriction_type)
+			KEY restriction_type (restriction_type),
+			KEY ai_generated (ai_generated)
 		) {$charset};";
 
 		dbDelta( $sql );
@@ -75,6 +79,16 @@ final class StatementStore {
 	 */
 	public static function record( array $data ) : int {
 		global $wpdb;
+
+		/**
+		 * Filter the statement-of-reasons row before it is persisted.
+		 *
+		 * Sister-plugin bridges (e.g. AI Act) hook here to enrich the row
+		 * with cross-plugin metadata such as AI-generated / deepfake flags.
+		 *
+		 * @param array<string,mixed> $data Raw row payload as supplied by the caller.
+		 */
+		$data = (array) apply_filters( 'eurocomply_dsa_statement_data', $data );
 
 		$row = array(
 			'issued_at'           => current_time( 'mysql' ),
@@ -94,13 +108,54 @@ final class StatementStore {
 			'redress_info'        => isset( $data['redress_info'] ) ? (string) $data['redress_info'] : '',
 			'issued_by'           => isset( $data['issued_by'] ) ? (int) $data['issued_by'] : get_current_user_id(),
 			'submitted_to_db'     => ! empty( $data['submitted_to_db'] ) ? 1 : 0,
+			'ai_generated'        => array_key_exists( 'ai_generated', $data ) && null !== $data['ai_generated']
+				? ( ! empty( $data['ai_generated'] ) ? 1 : 0 )
+				: null,
+			'ai_provider'         => isset( $data['ai_provider'] ) ? substr( (string) $data['ai_provider'], 0, 64 ) : '',
+			'ai_deepfake'         => array_key_exists( 'ai_deepfake', $data ) && null !== $data['ai_deepfake']
+				? ( ! empty( $data['ai_deepfake'] ) ? 1 : 0 )
+				: null,
 		);
 
 		$ok = $wpdb->insert( self::table_name(), $row ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		if ( false === $ok ) {
 			return 0;
 		}
-		return (int) $wpdb->insert_id;
+		$id = (int) $wpdb->insert_id;
+
+		/**
+		 * Fires after a statement of reasons row has been persisted.
+		 *
+		 * @param int                 $id  Newly created statement ID.
+		 * @param array<string,mixed> $row Persisted row payload.
+		 */
+		do_action( 'eurocomply_dsa_statement_recorded', $id, $row );
+
+		return $id;
+	}
+
+	/**
+	 * Count statements in a date range whose ai_generated flag is set to 1.
+	 */
+	public static function ai_generated_count( int $since_ts, int $until_ts ) : int {
+		global $wpdb;
+		$table = self::table_name();
+		$since = gmdate( 'Y-m-d H:i:s', max( 0, $since_ts ) );
+		$until = gmdate( 'Y-m-d H:i:s', max( 0, $until_ts ) );
+		$sql   = $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE ai_generated = 1 AND issued_at BETWEEN %s AND %s", $since, $until ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return (int) $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+	}
+
+	/**
+	 * Count statements in a date range whose ai_deepfake flag is set to 1.
+	 */
+	public static function ai_deepfake_count( int $since_ts, int $until_ts ) : int {
+		global $wpdb;
+		$table = self::table_name();
+		$since = gmdate( 'Y-m-d H:i:s', max( 0, $since_ts ) );
+		$until = gmdate( 'Y-m-d H:i:s', max( 0, $until_ts ) );
+		$sql   = $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE ai_deepfake = 1 AND issued_at BETWEEN %s AND %s", $since, $until ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return (int) $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 	}
 
 	/**

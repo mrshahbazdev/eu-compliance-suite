@@ -30,9 +30,12 @@ final class TransparencyReport {
 		$statements_total = StatementStore::count_since( $since_ts );
 		$restrictions     = StatementStore::restriction_counts( $since_ts, $until_ts );
 		$automated        = StatementStore::automated_count( $since_ts, $until_ts );
+		$ai_generated     = StatementStore::ai_generated_count( $since_ts, $until_ts );
+		$ai_deepfake      = StatementStore::ai_deepfake_count( $since_ts, $until_ts );
 		$traders          = TraderStore::status_counts();
 
-		$automated_share = $statements_total > 0 ? round( ( $automated / $statements_total ) * 100, 2 ) : 0.0;
+		$automated_share    = $statements_total > 0 ? round( ( $automated / $statements_total ) * 100, 2 ) : 0.0;
+		$ai_generated_share = $statements_total > 0 ? round( ( $ai_generated / $statements_total ) * 100, 2 ) : 0.0;
 
 		$settings = Settings::get();
 
@@ -55,10 +58,13 @@ final class TransparencyReport {
 				'categories' => $categories,
 			),
 			'statements'       => array(
-				'total'             => $statements_total,
-				'restriction_types' => $restrictions,
-				'automated'         => $automated,
-				'automated_share'   => $automated_share,
+				'total'              => $statements_total,
+				'restriction_types'  => $restrictions,
+				'automated'          => $automated,
+				'automated_share'    => $automated_share,
+				'ai_generated'       => $ai_generated,
+				'ai_generated_share' => $ai_generated_share,
+				'ai_deepfake'        => $ai_deepfake,
 			),
 			'traders'          => $traders,
 			'generated_at'     => gmdate( 'c' ),
@@ -84,6 +90,9 @@ final class TransparencyReport {
 		$rows[] = array( 'statements', 'total', (string) $report['statements']['total'] );
 		$rows[] = array( 'statements', 'automated', (string) $report['statements']['automated'] );
 		$rows[] = array( 'statements', 'automated_share', (string) $report['statements']['automated_share'] );
+		$rows[] = array( 'statements', 'ai_generated', (string) ( isset( $report['statements']['ai_generated'] ) ? $report['statements']['ai_generated'] : 0 ) );
+		$rows[] = array( 'statements', 'ai_generated_share', (string) ( isset( $report['statements']['ai_generated_share'] ) ? $report['statements']['ai_generated_share'] : 0 ) );
+		$rows[] = array( 'statements', 'ai_deepfake', (string) ( isset( $report['statements']['ai_deepfake'] ) ? $report['statements']['ai_deepfake'] : 0 ) );
 		foreach ( (array) $report['statements']['restriction_types'] as $type => $n ) {
 			$rows[] = array( 'statements.restriction_type', (string) $type, (string) $n );
 		}

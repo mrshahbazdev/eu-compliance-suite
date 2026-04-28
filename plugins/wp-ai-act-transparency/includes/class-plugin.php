@@ -34,6 +34,7 @@ final class Plugin {
 		ContentDisplay::instance();
 		Shortcodes::instance();
 		CsvExport::instance();
+		DsaBridge::register();
 	}
 
 	public static function activate() : void {

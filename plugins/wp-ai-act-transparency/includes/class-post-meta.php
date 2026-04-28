@@ -177,6 +177,24 @@ final class PostMeta {
 				)
 			);
 		}
+
+		/**
+		 * Fires after AI-Act post metadata has been saved.
+		 *
+		 * Sister-plugin bridges (e.g. DSA transparency) hook here to
+		 * surface AI-generated / deepfake flags in their own audit
+		 * trails.
+		 *
+		 * @param int                 $post_id      Post ID whose metadata was saved.
+		 * @param array<string,mixed> $metadata     Normalized metadata payload (see get_for_post()).
+		 * @param string              $prev_state   Previous "generated" flag ('1' or '0' or '').
+		 */
+		do_action(
+			'eurocomply_aiact_post_marked',
+			$post_id,
+			self::get_for_post( $post_id ),
+			$prev_generated
+		);
 	}
 
 	/**

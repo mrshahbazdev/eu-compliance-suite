@@ -98,25 +98,79 @@ final class PriceTracker {
 
 		$parent_id = 'product_variation' === $post->post_type ? (int) $post->post_parent : 0;
 
-		$id = PriceStore::record(
-			array(
-				'product_id'      => $post_id,
-				'parent_id'       => $parent_id,
-				'regular_price'   => null !== $regular ? $regular : 0.0,
-				'sale_price'      => $sale,
-				'effective_price' => $effective,
-				'currency'        => PriceStore::default_currency(),
-				'trigger_source'  => $source,
-			)
+		$tax_class   = (string) get_post_meta( $post_id, '_tax_class', true );
+		$tax_country = self::base_country();
+		$tax_rate    = self::vat_rate_for( $tax_country );
+		$net_price   = null;
+		if ( null !== $tax_rate && $tax_rate > 0 && $effective > 0 ) {
+			$net_price = self::wc_prices_include_tax()
+				? $effective / ( 1 + ( $tax_rate / 100 ) )
+				: $effective;
+		}
+
+		$row = array(
+			'product_id'      => $post_id,
+			'parent_id'       => $parent_id,
+			'regular_price'   => null !== $regular ? $regular : 0.0,
+			'sale_price'      => $sale,
+			'effective_price' => $effective,
+			'net_price'       => $net_price,
+			'tax_class'       => $tax_class,
+			'tax_country'     => $tax_country,
+			'tax_rate'        => $tax_rate,
+			'currency'        => PriceStore::default_currency(),
+			'trigger_source'  => $source,
 		);
 
+		$id = PriceStore::record( $row );
+
 		update_post_meta( $post_id, self::LAST_META, $current );
+
+		if ( $id > 0 ) {
+			$row['id']          = $id;
+			$row['recorded_at'] = current_time( 'mysql', true );
+			/**
+			 * Fired after a row is recorded in the Omnibus price-history
+			 * table. Sister plugins (e.g. EuroComply VAT OSS #3) listen on
+			 * this so the canonical price-history table doubles as the
+			 * audit reference for VAT corrections.
+			 *
+			 * @param int                 $price_id Newly inserted row id.
+			 * @param array<string,mixed> $row      Persisted row payload.
+			 */
+			do_action( 'eurocomply_omnibus_price_recorded', $id, $row );
+		}
 
 		return array(
 			'recorded' => $id > 0,
 			'reason'   => 'ok',
 			'id'       => $id,
 		);
+	}
+
+	private static function base_country() : string {
+		$opt = (string) get_option( 'woocommerce_default_country', '' );
+		if ( '' === $opt ) {
+			return '';
+		}
+		$parts = explode( ':', $opt );
+		return strtoupper( substr( (string) $parts[0], 0, 2 ) );
+	}
+
+	private static function vat_rate_for( string $iso ) : ?float {
+		if ( '' === $iso ) {
+			return null;
+		}
+		$fqn = '\\EuroComply\\VatOss\\Rates';
+		if ( ! class_exists( $fqn ) ) {
+			return null;
+		}
+		$rate = call_user_func( array( $fqn, 'standard_rate' ), $iso );
+		return null === $rate ? null : (float) $rate;
+	}
+
+	private static function wc_prices_include_tax() : bool {
+		return 'yes' === (string) get_option( 'woocommerce_prices_include_tax', 'no' );
 	}
 
 	/**
@@ -126,7 +180,7 @@ final class PriceTracker {
 	 *
 	 * @return array{scanned:int,recorded:int,skipped:int}
 	 */
-	public function backfill() : array {
+	public function backfill( string $source = 'backfill' ) : array {
 		$scanned  = 0;
 		$recorded = 0;
 		$skipped  = 0;
@@ -140,9 +194,10 @@ final class PriceTracker {
 				'no_found_rows'  => true,
 			)
 		);
+		$source = '' === $source ? 'backfill' : sanitize_key( $source );
 		foreach ( (array) $ids as $id ) {
 			$scanned++;
-			$result = $this->track( (int) $id, 'backfill' );
+			$result = $this->track( (int) $id, $source );
 			if ( $result['recorded'] ) {
 				$recorded++;
 			} else {

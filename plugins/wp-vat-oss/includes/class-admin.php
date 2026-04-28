@@ -380,6 +380,13 @@ final class Admin {
 
 		Settings::save( is_array( $_POST ) ? wp_unslash( $_POST ) : array() ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
+		/**
+		 * Fired after the VAT OSS settings are saved. Sister plugins
+		 * (e.g. EuroComply Omnibus #8) listen on this to refresh
+		 * derived data such as the price-history table's tax columns.
+		 */
+		do_action( 'eurocomply_vat_oss_settings_saved' );
+
 		add_settings_error( 'eurocomply_vat', 'saved', __( 'Settings saved.', 'eurocomply-vat-oss' ), 'updated' );
 		set_transient( 'settings_errors', get_settings_errors(), 30 );
 

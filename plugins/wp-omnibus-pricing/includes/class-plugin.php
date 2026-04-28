@@ -32,6 +32,7 @@ final class Plugin {
 		if ( class_exists( 'WooCommerce' ) ) {
 			WooCommerce::instance();
 		}
+		VatOssBridge::register();
 	}
 
 	public static function activate() : void {

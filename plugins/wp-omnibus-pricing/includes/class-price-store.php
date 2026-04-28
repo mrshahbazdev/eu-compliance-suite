@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class PriceStore {
 
-	public const DB_VERSION = '1';
+	public const DB_VERSION = '2';
 
 	public static function table() : string {
 		global $wpdb;
@@ -34,13 +34,18 @@ final class PriceStore {
 			regular_price DECIMAL(18,4) NOT NULL DEFAULT 0,
 			sale_price DECIMAL(18,4) NULL,
 			effective_price DECIMAL(18,4) NOT NULL DEFAULT 0,
+			net_price DECIMAL(18,4) NULL,
+			tax_class VARCHAR(64) NOT NULL DEFAULT '',
+			tax_country CHAR(2) NOT NULL DEFAULT '',
+			tax_rate DECIMAL(6,3) NULL,
 			currency VARCHAR(3) NOT NULL DEFAULT 'EUR',
 			trigger_source VARCHAR(32) NOT NULL DEFAULT 'save',
 			recorded_at DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
 			PRIMARY KEY  (id),
 			KEY product_id (product_id),
 			KEY recorded_at (recorded_at),
-			KEY product_time (product_id, recorded_at)
+			KEY product_time (product_id, recorded_at),
+			KEY tax_country (tax_country)
 		) {$charset_collate};";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -77,15 +82,25 @@ final class PriceStore {
 			'parent_id'       => (int) $row['parent_id'],
 			'regular_price'   => (float) $row['regular_price'],
 			'effective_price' => (float) $row['effective_price'],
+			'tax_class'       => sanitize_text_field( (string) ( $row['tax_class']   ?? '' ) ),
+			'tax_country'     => strtoupper( substr( (string) ( $row['tax_country'] ?? '' ), 0, 2 ) ),
 			'currency'        => strtoupper( substr( (string) $row['currency'], 0, 3 ) ),
 			'trigger_source'  => sanitize_key( (string) $row['trigger_source'] ),
 			'recorded_at'     => (string) $row['recorded_at'],
 		);
-		$formats = array( '%d', '%d', '%f', '%f', '%s', '%s', '%s' );
+		$formats = array( '%d', '%d', '%f', '%f', '%s', '%s', '%s', '%s', '%s' );
 
 		if ( null !== $row['sale_price'] && '' !== $row['sale_price'] ) {
 			$data['sale_price'] = (float) $row['sale_price'];
 			$formats[]          = '%f';
+		}
+		if ( isset( $row['net_price'] ) && '' !== $row['net_price'] && null !== $row['net_price'] ) {
+			$data['net_price'] = (float) $row['net_price'];
+			$formats[]         = '%f';
+		}
+		if ( isset( $row['tax_rate'] ) && '' !== $row['tax_rate'] && null !== $row['tax_rate'] ) {
+			$data['tax_rate'] = (float) $row['tax_rate'];
+			$formats[]        = '%f';
 		}
 
 		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
@@ -247,6 +262,35 @@ final class PriceStore {
 		global $wpdb;
 		$table = self::table();
 		return (int) $wpdb->get_var( "SELECT COUNT(DISTINCT product_id) FROM {$table}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	}
+
+	/**
+	 * Most-recent price-history row for a product as of (or before) a
+	 * specific timestamp. Used by sister plugins (e.g. VAT OSS, #3) to
+	 * answer "what was the gross price on the date this order was
+	 * placed?" for credit-note / refund corrections.
+	 *
+	 * @return array<string,mixed>|null
+	 */
+	public static function at_or_before( int $product_id, ?int $timestamp = null ) : ?array {
+		global $wpdb;
+		$table = self::table();
+		$ts    = null === $timestamp ? time() : (int) $timestamp;
+		$cut   = gmdate( 'Y-m-d H:i:s', $ts );
+		$row   = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$wpdb->prepare(
+				"SELECT * FROM {$table}
+				 WHERE ( product_id = %d OR parent_id = %d )
+				   AND recorded_at <= %s
+				 ORDER BY recorded_at DESC, id DESC
+				 LIMIT 1",
+				$product_id,
+				$product_id,
+				$cut
+			),
+			ARRAY_A
+		);
+		return is_array( $row ) ? $row : null;
 	}
 
 	public static function default_currency() : string {

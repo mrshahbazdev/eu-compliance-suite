@@ -49,9 +49,88 @@ final class Settings {
 			'privacy_policy_page'    => 0,
 			'imprint_page'           => 0,
 			'categories'             => self::default_categories(),
+			'tracker_inventory'      => array(),
 			'text_en'                => self::default_text_en(),
 			'text_de'                => self::default_text_de(),
 		);
+	}
+
+	/**
+	 * Public read accessor for the tracker inventory (slug => row).
+	 *
+	 * Populated by sister plugins such as EuroComply ePrivacy & Tracker
+	 * Registry; safe to call when no inventory has been seeded.
+	 *
+	 * @return array<string,array{name:string,vendor:string,category:string,cc_category:string,source:string,last_seen:string}>
+	 */
+	public static function tracker_inventory() : array {
+		$s = self::get();
+		$inv = isset( $s['tracker_inventory'] ) && is_array( $s['tracker_inventory'] ) ? $s['tracker_inventory'] : array();
+		$out = array();
+		foreach ( $inv as $slug => $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$out[ (string) $slug ] = array(
+				'name'        => isset( $row['name'] ) ? (string) $row['name'] : (string) $slug,
+				'vendor'      => isset( $row['vendor'] ) ? (string) $row['vendor'] : '',
+				'category'    => isset( $row['category'] ) ? (string) $row['category'] : '',
+				'cc_category' => isset( $row['cc_category'] ) ? (string) $row['cc_category'] : '',
+				'source'      => isset( $row['source'] ) ? (string) $row['source'] : '',
+				'last_seen'   => isset( $row['last_seen'] ) ? (string) $row['last_seen'] : '',
+			);
+		}
+		return $out;
+	}
+
+	/**
+	 * Sister-plugin merge API used by the ePrivacy scanner bridge.
+	 *
+	 * Each input row must have at least `slug` and `cc_category`; everything
+	 * else is normalised. New rows are added; existing rows have `last_seen`
+	 * refreshed and `cc_category` overwritten with the latest mapping.
+	 *
+	 * @param array<int,array<string,mixed>> $rows  Tracker rows from sister plugin.
+	 * @param string                          $source Origin tag (e.g. "eprivacy").
+	 * @return int Number of rows added (i.e. genuinely new slugs).
+	 */
+	public static function merge_trackers( array $rows, string $source = 'eprivacy' ) : int {
+		$known    = self::default_categories();
+		$cc_keys  = array_keys( $known );
+		$current  = self::get();
+		$existing = isset( $current['tracker_inventory'] ) && is_array( $current['tracker_inventory'] ) ? $current['tracker_inventory'] : array();
+		$added    = 0;
+		$now      = current_time( 'mysql' );
+
+		foreach ( $rows as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$slug = isset( $row['slug'] ) ? sanitize_key( (string) $row['slug'] ) : '';
+			if ( '' === $slug ) {
+				continue;
+			}
+			$cc_category = isset( $row['cc_category'] ) ? sanitize_key( (string) $row['cc_category'] ) : '';
+			if ( ! in_array( $cc_category, $cc_keys, true ) ) {
+				$cc_category = 'marketing';
+			}
+			$is_new = ! isset( $existing[ $slug ] );
+			$existing[ $slug ] = array(
+				'name'        => isset( $row['name'] ) ? sanitize_text_field( (string) $row['name'] ) : $slug,
+				'vendor'      => isset( $row['vendor'] ) ? sanitize_text_field( (string) $row['vendor'] ) : '',
+				'category'    => isset( $row['category'] ) ? sanitize_key( (string) $row['category'] ) : '',
+				'cc_category' => $cc_category,
+				'source'      => sanitize_key( $source ),
+				'last_seen'   => $now,
+			);
+			if ( $is_new ) {
+				$added++;
+			}
+		}
+
+		$current['tracker_inventory'] = $existing;
+		update_option( self::OPTION_KEY, $current, false );
+		return $added;
 	}
 
 	/**

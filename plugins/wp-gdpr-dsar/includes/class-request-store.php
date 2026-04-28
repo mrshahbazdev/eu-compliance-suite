@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class RequestStore {
 
 	public const DB_VERSION_OPTION = 'eurocomply_dsar_db_version';
-	public const DB_VERSION        = '1.0.0';
+	public const DB_VERSION        = '1.1.0';
 
 	public const TYPES = array(
 		'access',
@@ -70,6 +70,8 @@ final class RequestStore {
 			handler_user_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
 			export_path VARCHAR(255) NOT NULL DEFAULT '',
 			admin_notes LONGTEXT NULL,
+			breach_flag TINYINT(1) NOT NULL DEFAULT 0,
+			nis2_incident_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY  (id),
 			KEY submitted_at (submitted_at),
 			KEY status (status),
@@ -140,6 +142,8 @@ final class RequestStore {
 			'export_path',
 			'admin_notes',
 			'deadline_at',
+			'breach_flag',
+			'nis2_incident_id',
 		);
 		$row = array( 'updated_at' => current_time( 'mysql' ) );
 		foreach ( $allowed as $key ) {
@@ -207,6 +211,12 @@ final class RequestStore {
 			}
 		}
 		return $out;
+	}
+
+	public static function count_breach_flagged() : int {
+		global $wpdb;
+		$table = self::table_name();
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE breach_flag = 1" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 	public static function count_overdue() : int {

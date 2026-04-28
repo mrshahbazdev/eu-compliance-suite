@@ -194,7 +194,7 @@ final class Admin {
 		}
 
 		echo '<table class="widefat striped"><thead><tr>';
-		foreach ( array( __( 'ID', 'eurocomply-dsar' ), __( 'Submitted', 'eurocomply-dsar' ), __( 'Type', 'eurocomply-dsar' ), __( 'Email', 'eurocomply-dsar' ), __( 'Status', 'eurocomply-dsar' ), __( 'Verified', 'eurocomply-dsar' ), __( 'Deadline', 'eurocomply-dsar' ), __( 'Actions', 'eurocomply-dsar' ) ) as $label ) {
+		foreach ( array( __( 'ID', 'eurocomply-dsar' ), __( 'Submitted', 'eurocomply-dsar' ), __( 'Type', 'eurocomply-dsar' ), __( 'Email', 'eurocomply-dsar' ), __( 'Status', 'eurocomply-dsar' ), __( 'Verified', 'eurocomply-dsar' ), __( 'Deadline', 'eurocomply-dsar' ), __( 'Breach', 'eurocomply-dsar' ), __( 'Actions', 'eurocomply-dsar' ) ) as $label ) {
 			echo '<th>' . esc_html( $label ) . '</th>';
 		}
 		echo '</tr></thead><tbody>';
@@ -215,15 +215,26 @@ final class Admin {
 			printf( '<td><code>%s</code></td>', esc_html( $status ) );
 			printf( '<td>%s</td>', $verified ? esc_html__( 'Yes', 'eurocomply-dsar' ) : esc_html__( 'No', 'eurocomply-dsar' ) );
 			printf( '<td%s>%s</td>', $overdue ? ' style="color:#d63638;font-weight:600"' : '', esc_html( (string) ( $row['deadline_at'] ?? '' ) ) );
+			$breach_flag = ! empty( $row['breach_flag'] );
+			$nis2_id     = (int) ( $row['nis2_incident_id'] ?? 0 );
+			if ( $breach_flag ) {
+				$label = $nis2_id > 0
+					/* translators: %d: NIS2 incident id. */
+					? sprintf( __( 'Yes → NIS2 #%d', 'eurocomply-dsar' ), $nis2_id )
+					: __( 'Yes', 'eurocomply-dsar' );
+				printf( '<td><strong style="color:#d63638">%s</strong></td>', esc_html( $label ) );
+			} else {
+				echo '<td>—</td>';
+			}
 			echo '<td>';
-			$this->render_row_actions( $id, $type, $status );
+			$this->render_row_actions( $id, $type, $status, $breach_flag );
 			echo '</td>';
 			echo '</tr>';
 		}
 		echo '</tbody></table>';
 	}
 
-	private function render_row_actions( int $id, string $type, string $status ) : void {
+	private function render_row_actions( int $id, string $type, string $status, bool $breach_flag = false ) : void {
 		$base = admin_url( 'admin-post.php?action=' . self::ACTION_REQ );
 		$url  = static function ( int $id, string $op ) use ( $base ) : string {
 			return wp_nonce_url(
@@ -245,6 +256,11 @@ final class Admin {
 		if ( ! in_array( $status, array( 'completed', 'rejected', 'cancelled' ), true ) ) {
 			printf( '<a class="button" href="%s">%s</a> ', esc_url( $url( $id, 'complete' ) ), esc_html__( 'Mark complete', 'eurocomply-dsar' ) );
 			printf( '<a class="button" href="%s">%s</a> ', esc_url( $url( $id, 'reject' ) ), esc_html__( 'Reject', 'eurocomply-dsar' ) );
+		}
+		if ( $breach_flag ) {
+			printf( '<a class="button" href="%s">%s</a> ', esc_url( $url( $id, 'unflag_breach' ) ), esc_html__( 'Unflag breach', 'eurocomply-dsar' ) );
+		} else {
+			printf( '<a class="button" href="%s" onclick="return confirm(\'%s\');">%s</a> ', esc_url( $url( $id, 'flag_breach' ) ), esc_js( __( 'Mark this DSAR request as a personal-data breach? This will create a linked NIS2 incident with 24h/72h Art. 23 deadlines if EuroComply NIS2 is active.', 'eurocomply-dsar' ) ), esc_html__( 'Flag as breach', 'eurocomply-dsar' ) );
 		}
 	}
 
@@ -568,6 +584,25 @@ final class Admin {
 					)
 				);
 				$message = __( 'Request rejected.', 'eurocomply-dsar' );
+				break;
+			case 'flag_breach':
+				$res = Nis2Bridge::flag_request_as_breach( $id );
+				if ( ! $res['ok'] ) {
+					$type    = 'error';
+					$message = __( 'Could not flag request: not found.', 'eurocomply-dsar' );
+				} elseif ( ! $res['nis2_active'] ) {
+					$type    = 'updated';
+					$message = __( 'Request flagged as breach. EuroComply NIS2 (#12) is not active, so no incident was created. Activate it to auto-track Art. 23 24h/72h deadlines.', 'eurocomply-dsar' );
+				} elseif ( $res['incident_id'] > 0 ) {
+					/* translators: %d: NIS2 incident id. */
+					$message = sprintf( __( 'Request flagged as breach. Linked NIS2 incident #%d created with 24h early-warning + 72h notification deadlines.', 'eurocomply-dsar' ), (int) $res['incident_id'] );
+				} else {
+					$message = __( 'Request flagged as breach.', 'eurocomply-dsar' );
+				}
+				break;
+			case 'unflag_breach':
+				Nis2Bridge::unflag_request( $id );
+				$message = __( 'Breach flag removed. Any linked NIS2 incident is preserved and must be closed in the NIS2 plugin.', 'eurocomply-dsar' );
 				break;
 			default:
 				wp_die( esc_html__( 'Unknown action.', 'eurocomply-dsar' ), 400 );

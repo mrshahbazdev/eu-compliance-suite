@@ -138,7 +138,13 @@ final class Scanner {
 	 * @return array<int,string>
 	 */
 	private static function declared_categories_in_consent() : array {
-		$o = get_option( 'eurocomply_cookie_consent_settings' );
+		// EuroComply Cookie Consent #2 stores its settings under
+		// `eurocomply_cc_settings`. We also accept two earlier option keys
+		// for backward compatibility with sites running pre-release builds.
+		$o = get_option( 'eurocomply_cc_settings' );
+		if ( ! is_array( $o ) ) {
+			$o = get_option( 'eurocomply_cookie_consent_settings' );
+		}
 		if ( ! is_array( $o ) ) {
 			$o = get_option( 'eurocomply_cookie_settings' );
 		}
@@ -147,7 +153,11 @@ final class Scanner {
 		}
 		$cats = array();
 		if ( isset( $o['categories'] ) && is_array( $o['categories'] ) ) {
-			foreach ( $o['categories'] as $k => $_v ) {
+			foreach ( $o['categories'] as $k => $row ) {
+				if ( is_array( $row ) && isset( $row['enabled'] ) && empty( $row['enabled'] ) ) {
+					// Skip categories the operator has explicitly disabled.
+					continue;
+				}
 				$cats[] = (string) $k;
 			}
 		}

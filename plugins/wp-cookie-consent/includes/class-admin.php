@@ -71,7 +71,7 @@ final class Admin {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'eurocomply-cookie-consent' ) );
 		}
 
-		$allowed_tabs = array( 'banner', 'categories', 'integrations', 'log', 'license' );
+		$allowed_tabs = array( 'banner', 'categories', 'trackers', 'integrations', 'log', 'license' );
 		$tab          = isset( $_GET['tab'] ) ? sanitize_key( (string) wp_unslash( $_GET['tab'] ) ) : 'banner'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! in_array( $tab, $allowed_tabs, true ) ) {
 			$tab = 'banner';
@@ -90,6 +90,9 @@ final class Admin {
 		switch ( $tab ) {
 			case 'categories':
 				$this->render_categories_tab( $settings );
+				break;
+			case 'trackers':
+				$this->render_trackers_tab();
 				break;
 			case 'integrations':
 				$this->render_integrations_tab( $settings );
@@ -112,6 +115,7 @@ final class Admin {
 		$tabs = array(
 			'banner'       => __( 'Banner', 'eurocomply-cookie-consent' ),
 			'categories'   => __( 'Categories', 'eurocomply-cookie-consent' ),
+			'trackers'     => __( 'Trackers', 'eurocomply-cookie-consent' ),
 			'integrations' => __( 'Integrations', 'eurocomply-cookie-consent' ),
 			'log'          => __( 'Consent Log', 'eurocomply-cookie-consent' ),
 			'license'      => $is_pro ? __( 'License', 'eurocomply-cookie-consent' ) : __( 'License (Pro)', 'eurocomply-cookie-consent' ),
@@ -309,6 +313,62 @@ final class Admin {
 			</table>
 			<?php submit_button( __( 'Save category settings', 'eurocomply-cookie-consent' ) ); ?>
 		</form>
+		<?php
+	}
+
+	private function render_trackers_tab() : void {
+		$inventory = Settings::tracker_inventory();
+		$cats      = Settings::default_categories();
+		$eprivacy_active = class_exists( '\\EuroComply\\EPrivacy\\Plugin' );
+		?>
+		<h2><?php esc_html_e( 'Tracker inventory', 'eurocomply-cookie-consent' ); ?></h2>
+		<p class="description">
+			<?php esc_html_e( 'Read-only inventory of trackers detected on this site by the EuroComply ePrivacy & Tracker Registry plugin (#16). Each tracker is mapped to one of the consent categories above.', 'eurocomply-cookie-consent' ); ?>
+		</p>
+		<?php if ( ! $eprivacy_active ) : ?>
+			<div class="notice notice-warning inline">
+				<p>
+					<?php
+					esc_html_e( 'EuroComply ePrivacy & Tracker Registry is not active on this site. Install and activate it, then run a scan and click "Apply detected trackers to Cookie Consent" on its dashboard to populate this inventory.', 'eurocomply-cookie-consent' );
+					?>
+				</p>
+			</div>
+		<?php endif; ?>
+		<?php if ( ! $inventory ) : ?>
+			<p><em><?php esc_html_e( 'No trackers in the inventory yet.', 'eurocomply-cookie-consent' ); ?></em></p>
+			<?php
+			return;
+		endif;
+		?>
+		<table class="widefat striped">
+			<thead>
+				<tr>
+					<th><?php esc_html_e( 'Tracker', 'eurocomply-cookie-consent' ); ?></th>
+					<th><?php esc_html_e( 'Vendor', 'eurocomply-cookie-consent' ); ?></th>
+					<th><?php esc_html_e( 'Source category', 'eurocomply-cookie-consent' ); ?></th>
+					<th><?php esc_html_e( 'Consent category', 'eurocomply-cookie-consent' ); ?></th>
+					<th><?php esc_html_e( 'Source', 'eurocomply-cookie-consent' ); ?></th>
+					<th><?php esc_html_e( 'Last seen', 'eurocomply-cookie-consent' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ( $inventory as $slug => $row ) : ?>
+					<tr>
+						<td><strong><?php echo esc_html( $row['name'] ); ?></strong><br /><code><?php echo esc_html( $slug ); ?></code></td>
+						<td><?php echo esc_html( $row['vendor'] ); ?></td>
+						<td><code><?php echo esc_html( $row['category'] ); ?></code></td>
+						<td>
+							<?php
+							$label = isset( $cats[ $row['cc_category'] ]['label'] ) ? (string) $cats[ $row['cc_category'] ]['label'] : $row['cc_category'];
+							echo esc_html( $label );
+							?>
+						</td>
+						<td><code><?php echo esc_html( $row['source'] ); ?></code></td>
+						<td><?php echo esc_html( $row['last_seen'] ); ?></td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
 		<?php
 	}
 

@@ -19,6 +19,7 @@ final class Admin {
 	private const NONCE_SAVE    = 'eurocomply_eprivacy_save';
 	private const NONCE_LICENSE = 'eurocomply_eprivacy_license';
 	private const NONCE_SCAN    = 'eurocomply_eprivacy_scan';
+	private const NONCE_APPLY   = 'eurocomply_eprivacy_apply_to_consent';
 
 	private static ?Admin $instance = null;
 
@@ -33,9 +34,10 @@ final class Admin {
 	private function register() : void {
 		add_action( 'admin_menu', array( $this, 'menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
-		add_action( 'admin_post_eurocomply_eprivacy_save',    array( $this, 'handle_save' ) );
-		add_action( 'admin_post_eurocomply_eprivacy_license', array( $this, 'handle_license' ) );
-		add_action( 'admin_post_eurocomply_eprivacy_scan',    array( $this, 'handle_scan' ) );
+		add_action( 'admin_post_eurocomply_eprivacy_save',              array( $this, 'handle_save' ) );
+		add_action( 'admin_post_eurocomply_eprivacy_license',           array( $this, 'handle_license' ) );
+		add_action( 'admin_post_eurocomply_eprivacy_scan',              array( $this, 'handle_scan' ) );
+		add_action( 'admin_post_eurocomply_eprivacy_apply_to_consent', array( $this, 'handle_apply_to_consent' ) );
 	}
 
 	public function menu() : void {
@@ -144,6 +146,58 @@ final class Admin {
 			}
 			echo '</tbody></table>';
 		}
+
+		// Sister-plugin bridge: push detected trackers into Cookie Consent (#2).
+		echo '<h2>' . esc_html__( 'Sister plugin: Cookie Consent (#2)', 'eurocomply-eprivacy' ) . '</h2>';
+		if ( CookieConsentBridge::is_active() ) {
+			$action = esc_url( admin_url( 'admin-post.php' ) );
+			echo '<p class="description">' . esc_html__( 'Push every consent-requiring tracker observed on the latest scan into the EuroComply Cookie Consent inventory. Mapping uses ePrivacy categories → Consent Mode v2 buckets (analytics → statistics; advertising/social → marketing; functional/preferences → preferences).', 'eurocomply-eprivacy' ) . '</p>';
+			echo '<form method="post" action="' . $action . '">';
+			echo '<input type="hidden" name="action" value="eurocomply_eprivacy_apply_to_consent" />';
+			wp_nonce_field( self::NONCE_APPLY );
+			submit_button( __( 'Apply detected trackers to Cookie Consent', 'eurocomply-eprivacy' ), 'secondary', 'submit', false );
+			echo '</form>';
+		} else {
+			echo '<p class="description">' . esc_html__( 'EuroComply Cookie Consent (#2) is not active on this site, so the bridge is unavailable. Install and activate it to surface detected trackers in your consent banner inventory.', 'eurocomply-eprivacy' ) . '</p>';
+		}
+	}
+
+	public function handle_apply_to_consent() : void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Insufficient permissions.', 'eurocomply-eprivacy' ), 403 );
+		}
+		check_admin_referer( self::NONCE_APPLY );
+		$result = CookieConsentBridge::apply_findings();
+		if ( ! $result['ok'] ) {
+			add_settings_error(
+				'eurocomply_eprivacy',
+				'sister_missing',
+				__( 'Cookie Consent (#2) is not active. Install/activate it before applying trackers.', 'eurocomply-eprivacy' ),
+				'error'
+			);
+		} elseif ( 'no-findings' === $result['reason'] ) {
+			add_settings_error(
+				'eurocomply_eprivacy',
+				'no_findings',
+				__( 'No findings to push. Run a scan first, then try again.', 'eurocomply-eprivacy' ),
+				'warning'
+			);
+		} else {
+			add_settings_error(
+				'eurocomply_eprivacy',
+				'applied',
+				sprintf(
+					/* translators: 1: trackers added, 2: trackers sent. */
+					__( 'Cookie Consent inventory updated: %1$d new entries (%2$d total trackers sent).', 'eurocomply-eprivacy' ),
+					(int) $result['added'],
+					(int) $result['sent']
+				),
+				'success'
+			);
+		}
+		set_transient( 'settings_errors', get_settings_errors(), 30 );
+		wp_safe_redirect( add_query_arg( array( 'page' => self::MENU_SLUG, 'tab' => 'dashboard', 'settings-updated' => 'true' ), admin_url( 'admin.php' ) ) );
+		exit;
 	}
 
 	private function render_trackers() : void {

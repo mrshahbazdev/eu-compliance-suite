@@ -15,8 +15,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Shortcodes {
 
-	public const NONCE_FORM   = 'eurocomply_wb_form';
-	public const NONCE_STATUS = 'eurocomply_wb_status';
+	public const NONCE_FORM     = 'eurocomply_wb_form';
+	public const NONCE_STATUS   = 'eurocomply_wb_status';
+	public const NONCE_ESCALATE = 'eurocomply_wb_escalate';
 
 	private static ?Shortcodes $instance = null;
 
@@ -154,6 +155,20 @@ final class Shortcodes {
 				printf( '<p><strong>%s:</strong> %s</p>', esc_html__( 'Feedback sent', 'eurocomply-whistleblower' ), esc_html( (string) $report['feedback_sent_at'] ) );
 			}
 			echo '</div>';
+
+			if ( DsarBridge::dsar_active() && ! empty( $report['can_escalate'] ) ) {
+				echo '<div class="eurocomply-wb-escalate">';
+				echo '<h4>' . esc_html__( 'Request your personal data (GDPR Art. 15)', 'eurocomply-whistleblower' ) . '</h4>';
+				echo '<p>' . esc_html__( 'You can escalate this report into a formal GDPR access request. The data protection team has 30 days to respond. Your report body is never disclosed in the resulting export under Directive (EU) 2019/1937 Art. 16 confidentiality.', 'eurocomply-whistleblower' ) . '</p>';
+				echo '<form method="post" action="' . esc_url( get_permalink() ) . '">';
+				wp_nonce_field( self::NONCE_ESCALATE, '_eurocomply_wb_escalate_nonce' );
+				echo '<input type="hidden" name="eurocomply_wb_escalate" value="1" />';
+				echo '<p><label>' . esc_html__( 'Re-enter your follow-up token to confirm', 'eurocomply-whistleblower' );
+				echo '<br /><input type="text" name="follow_up_token" required class="eurocomply-wb-input" /></label></p>';
+				echo '<p><button type="submit" class="eurocomply-wb-btn">' . esc_html__( 'Open GDPR access request', 'eurocomply-whistleblower' ) . '</button></p>';
+				echo '</form>';
+				echo '</div>';
+			}
 		}
 		echo '<form method="post" action="' . esc_url( get_permalink() ) . '">';
 		wp_nonce_field( self::NONCE_STATUS, '_eurocomply_wb_status_nonce' );
@@ -177,7 +192,57 @@ final class Shortcodes {
 		}
 		if ( isset( $_POST['eurocomply_wb_status_check'] ) && '1' === (string) $_POST['eurocomply_wb_status_check'] ) {
 			$this->handle_status_check();
+			return;
 		}
+		if ( isset( $_POST['eurocomply_wb_escalate'] ) && '1' === (string) $_POST['eurocomply_wb_escalate'] ) {
+			$this->handle_escalate_to_dsar();
+		}
+	}
+
+	private function handle_escalate_to_dsar() : void {
+		if ( ! isset( $_POST['_eurocomply_wb_escalate_nonce'] ) || ! wp_verify_nonce( (string) wp_unslash( $_POST['_eurocomply_wb_escalate_nonce'] ), self::NONCE_ESCALATE ) ) {
+			$this->stash_status( __( 'Security check failed.', 'eurocomply-whistleblower' ), null );
+			$this->redirect_back( 'eurocomply_wb_status_done' );
+			return;
+		}
+		if ( ! DsarBridge::dsar_active() ) {
+			$this->stash_status( __( 'EuroComply GDPR DSAR (#11) is not active on this site, so the escalation is unavailable.', 'eurocomply-whistleblower' ), null );
+			$this->redirect_back( 'eurocomply_wb_status_done' );
+			return;
+		}
+		$token = isset( $_POST['follow_up_token'] ) ? trim( (string) wp_unslash( $_POST['follow_up_token'] ) ) : '';
+		if ( '' === $token ) {
+			$this->stash_status( __( 'Please enter your follow-up token to confirm the escalation.', 'eurocomply-whistleblower' ), null );
+			$this->redirect_back( 'eurocomply_wb_status_done' );
+			return;
+		}
+		$report = ReportStore::find_by_token( $token );
+		if ( null === $report ) {
+			$this->stash_status( __( 'Token not recognised.', 'eurocomply-whistleblower' ), null );
+			$this->redirect_back( 'eurocomply_wb_status_done' );
+			return;
+		}
+		$result = DsarBridge::create_dsar_for_report( (int) $report['id'] );
+		switch ( (string) $result['reason'] ) {
+			case 'created':
+				AccessLog::record( (int) $report['id'], 'escalated_to_dsar', array( 'request_id' => (int) $result['request_id'] ) );
+				$msg = sprintf(
+					/* translators: %d: GDPR DSAR request id */
+					__( 'Your access request has been logged with the data protection team as DSAR #%d. They have 30 days to respond under GDPR Art. 12(3).', 'eurocomply-whistleblower' ),
+					(int) $result['request_id']
+				);
+				break;
+			case 'anonymous-reporter':
+				$msg = __( 'This report was filed anonymously. To exercise your GDPR rights, please contact the Designated Recipient via the report follow-up channel.', 'eurocomply-whistleblower' );
+				break;
+			case 'no-email-on-record':
+				$msg = __( 'No email address is on file for this report. Please contact the Designated Recipient directly.', 'eurocomply-whistleblower' );
+				break;
+			default:
+				$msg = __( 'Could not create the DSAR access request. Please contact the Designated Recipient.', 'eurocomply-whistleblower' );
+		}
+		$this->stash_status( $msg, null );
+		$this->redirect_back( 'eurocomply_wb_status_done' );
 	}
 
 	private function handle_submission() : void {
@@ -274,11 +339,14 @@ final class Shortcodes {
 			$this->redirect_back( 'eurocomply_wb_status_done' );
 			return;
 		}
+		$contact_email = sanitize_email( (string) ( $report['contact_value'] ?? '' ) );
+		$can_escalate  = empty( $report['anonymous'] ) && '' !== $contact_email && is_email( $contact_email );
 		$visible = array(
 			'created_at'       => (string) $report['created_at'],
 			'status'           => (string) $report['status'],
 			'acknowledged_at'  => (string) ( $report['acknowledged_at'] ?? '' ),
 			'feedback_sent_at' => (string) ( $report['feedback_sent_at'] ?? '' ),
+			'can_escalate'     => $can_escalate ? 1 : 0,
 		);
 		AccessLog::record( (int) $report['id'], 'status_checked', array() );
 		$this->stash_status( '', $visible );
